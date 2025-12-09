@@ -22,45 +22,63 @@
         <div class="sidebar">
             <div class="sidebar-item active" data-page="reminders-page">Reminders</div>
             <div class="sidebar-item" data-page="chat-page">AI Chat</div>
-            <div class="sidebar-item" data-page="emails-page">Emails</div>
             <div class="sidebar-item" data-page="bills-page">Bills</div>
             <div class="sidebar-item" data-page="taxes-page">Taxes</div>
+            <div class="sidebar-item" data-page="expenses-page">Expenses</div>
             <div class="sidebar-item" data-page="profile-page">Profile</div>
             <button id="logoutBtn">Logout</button>
         </div>
 
         <!-- PAGES -->
         <div id="pages-container">
+            <!-- REMINDERS -->
             <div id="reminders-page" class="page">
                 <h2>Reminders</h2>
                 <button id="add-reminder-btn">+ Add Reminder</button>
                 <ul id="reminder-list"></ul>
             </div>
+
+            <!-- CHAT -->
             <div id="chat-page" class="page hidden">
                 <h2>AI Chat</h2>
                 <div id="chat-messages" class="chat-messages"></div>
                 <input type="text" id="chat-text" placeholder="Type a message...">
                 <button id="send-chat">Send</button>
             </div>
-            <div id="emails-page" class="page hidden">
-                <h2>Emails</h2>
-                <ul id="email-list"></ul>
-            </div>
+
+            <!-- BILLS -->
             <div id="bills-page" class="page hidden">
                 <h2>Bills</h2>
+                <button id="add-bill-btn">+ Add Bill</button>
                 <ul id="bill-list"></ul>
             </div>
+
+            <!-- TAXES -->
             <div id="taxes-page" class="page hidden">
                 <h2>Taxes</h2>
-                <ul id="tax-list"></ul>
+                <div id="tax-inputs">
+                    <label>Salary: <input type="number" id="tax-salary" placeholder="Monthly salary"></label>
+                    <label>Dependents: <input type="number" id="tax-dependents" placeholder="Number"></label>
+                    <label>Deductions: <input type="number" id="tax-deductions" placeholder="R"></label>
+                    <button id="calculate-tax">Calculate Tax</button>
+                </div>
+                <div id="tax-result"></div>
             </div>
+
+            <!-- EXPENSES -->
+            <div id="expenses-page" class="page hidden">
+                <h2>Expenses</h2>
+                <ul id="expense-list"></ul>
+                <button id="add-expense-btn">+ Add Expense</button>
+            </div>
+
+            <!-- PROFILE -->
             <div id="profile-page" class="page hidden">
                 <h2>Profile</h2>
                 <img id="profile-preview" src="" alt="Profile Picture">
                 <input type="file" id="profile-pic">
                 <textarea id="bio" placeholder="Your bio"></textarea>
-                <div id="stat-reminders"></div>
-                <div id="stat-tasks"></div>
+                <div id="stats"></div>
             </div>
         </div>
 
@@ -77,6 +95,31 @@
                 <button id="close-reminder">Close</button>
             </div>
         </div>
+
+        <!-- BILL MODAL -->
+        <div id="bill-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Add Bill</h3>
+                <input type="text" id="bill-title" placeholder="Bill Name">
+                <input type="number" id="bill-amount" placeholder="Amount">
+                <input type="date" id="bill-date">
+                <input type="text" id="bill-notes" placeholder="Notes / Instructions">
+                <button id="save-bill">Save</button>
+                <button id="close-bill">Close</button>
+            </div>
+        </div>
+
+        <!-- EXPENSE MODAL -->
+        <div id="expense-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Add Expense</h3>
+                <input type="text" id="expense-title" placeholder="Expense Name">
+                <input type="number" id="expense-amount" placeholder="Amount">
+                <button id="save-expense">Save</button>
+                <button id="close-expense">Close</button>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
