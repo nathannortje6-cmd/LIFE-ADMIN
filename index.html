@@ -2,106 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIFE-ADMIN</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Floating Glows -->
-    <div class="floating-glow glow-1"></div>
-    <div class="floating-glow glow-2"></div>
-    <div class="floating-glow glow-3"></div>
-
-    <!-- Login Screen -->
+    <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-card">
             <h1>LIFE-ADMIN</h1>
-            <p>Welcome! Login or Register to continue</p>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button id="loginBtn">Login / Register</button>
         </div>
     </div>
 
-    <!-- App Container -->
+    <!-- MAIN APP -->
     <div id="app-container" class="hidden">
-        <!-- Sidebar -->
-        <aside id="sidebar">
-            <div class="sidebar-item active" data-page="reminders">Reminders</div>
-            <div class="sidebar-item" data-page="ai-chat">AI Chat</div>
-            <div class="sidebar-item" data-page="emails">Emails</div>
-            <div class="sidebar-item" data-page="bills">Bills</div>
-            <div class="sidebar-item" data-page="taxes">Taxes</div>
-            <div class="sidebar-item" data-page="profile">Profile</div>
-            <div class="sidebar-item logout" id="logoutBtn">Logout</div>
-        </aside>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-item active" data-page="reminders-page">Reminders</div>
+            <div class="sidebar-item" data-page="chat-page">AI Chat</div>
+            <div class="sidebar-item" data-page="emails-page">Emails</div>
+            <div class="sidebar-item" data-page="bills-page">Bills</div>
+            <div class="sidebar-item" data-page="taxes-page">Taxes</div>
+            <div class="sidebar-item" data-page="profile-page">Profile</div>
+            <button id="logoutBtn">Logout</button>
+        </div>
 
-        <!-- Main Content -->
-        <main id="main-content">
-            <!-- Reminders Page -->
-            <section class="page" id="reminders">
-                <div class="page-header">
-                    <h2>Reminders / To-Do</h2>
-                    <button id="add-reminder-btn">+</button>
-                </div>
+        <!-- PAGES -->
+        <div id="pages-container">
+            <div id="reminders-page" class="page">
+                <h2>Reminders</h2>
+                <button id="add-reminder-btn">+ Add Reminder</button>
                 <ul id="reminder-list"></ul>
-            </section>
-
-            <!-- AI Chat Page -->
-            <section class="page hidden" id="ai-chat">
+            </div>
+            <div id="chat-page" class="page hidden">
                 <h2>AI Chat</h2>
-                <div id="chat-container">
-                    <div id="chat-messages"></div>
-                    <div id="chat-input">
-                        <input type="text" id="chat-text" placeholder="Ask AI...">
-                        <button id="send-chat">Send</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Emails Page -->
-            <section class="page hidden" id="emails">
+                <div id="chat-messages" class="chat-messages"></div>
+                <input type="text" id="chat-text" placeholder="Type a message...">
+                <button id="send-chat">Send</button>
+            </div>
+            <div id="emails-page" class="page hidden">
                 <h2>Emails</h2>
                 <ul id="email-list"></ul>
-            </section>
-
-            <!-- Bills Page -->
-            <section class="page hidden" id="bills">
+            </div>
+            <div id="bills-page" class="page hidden">
                 <h2>Bills</h2>
                 <ul id="bill-list"></ul>
-            </section>
-
-            <!-- Taxes Page -->
-            <section class="page hidden" id="taxes">
+            </div>
+            <div id="taxes-page" class="page hidden">
                 <h2>Taxes</h2>
                 <ul id="tax-list"></ul>
-            </section>
-
-            <!-- Profile Page -->
-            <section class="page hidden" id="profile">
+            </div>
+            <div id="profile-page" class="page hidden">
                 <h2>Profile</h2>
+                <img id="profile-preview" src="" alt="Profile Picture">
                 <input type="file" id="profile-pic">
-                <img id="profile-preview" src="" alt="Avatar">
-                <input type="text" id="bio" placeholder="Bio">
-                <div id="profile-stats">
-                    <div id="stat-reminders">Reminders: 0</div>
-                    <div id="stat-tasks">Completed Tasks: 0</div>
-                </div>
-            </section>
-        </main>
+                <textarea id="bio" placeholder="Your bio"></textarea>
+                <div id="stat-reminders"></div>
+                <div id="stat-tasks"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Reminder Modal -->
-    <div id="reminder-modal" class="hidden">
-        <div class="modal-card">
+    <!-- REMINDER MODAL -->
+    <div id="reminder-modal" class="modal hidden">
+        <div class="modal-content">
             <h3>Add Reminder</h3>
             <input type="text" id="reminder-title" placeholder="Title">
             <input type="date" id="reminder-date">
             <input type="time" id="reminder-time">
             <input type="text" id="reminder-reason" placeholder="Reason">
-            <input type="text" id="reminder-instruction" placeholder="Instructions">
+            <input type="text" id="reminder-instruction" placeholder="Instruction">
             <button id="save-reminder">Save</button>
-            <button id="close-reminder">Cancel</button>
+            <button id="close-reminder">Close</button>
         </div>
     </div>
 
