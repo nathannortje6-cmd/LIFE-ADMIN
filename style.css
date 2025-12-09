@@ -171,6 +171,7 @@ button {
 .section {
     padding: 100px 30px 80px 30px;
     display: none;
+    animation: fadeIn 0.5s ease;
 }
 
 .section h2 {
@@ -180,7 +181,7 @@ button {
     text-shadow: 0 0 10px #00c8ff;
 }
 
-input, select {
+input, select, textarea {
     padding: 12px;
     margin: 8px 0;
     border-radius: 12px;
@@ -192,7 +193,9 @@ input, select {
     transition: all 0.3s ease;
 }
 
-input:focus, select:focus {
+textarea { width: 100%; resize: vertical; }
+
+input:focus, select:focus, textarea:focus {
     border: 1px solid #00c8ff;
     box-shadow: 0 0 15px #00c8ff;
     outline: none;
@@ -215,17 +218,26 @@ button:hover {
 }
 
 /* Lists */
-ul { list-style: none; margin-top: 10px; }
+ul { list-style: none; margin-top: 10px; padding-left:0; }
 li {
     background: #1c1c28;
     padding: 10px;
     margin-bottom: 8px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,200,255,0.2);
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
     transition: all 0.3s ease;
 }
 
 li:hover { transform: translateY(-3px); box-shadow: 0 0 20px rgba(0,200,255,0.4); }
+
+li button {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
 
 /* ============================= */
 /* PROFILE                         */
@@ -300,6 +312,7 @@ li:hover { transform: translateY(-3px); box-shadow: 0 0 20px rgba(0,200,255,0.4)
     to {opacity:1;}
 }
 
-.section {
-    animation: fadeIn 0.5s ease;
+/* Animation for adding list items */
+li {
+    animation: fadeIn 0.3s ease;
 }
