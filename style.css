@@ -1,5 +1,5 @@
 /* ============================= */
-/* GLOBAL RESET & BASE STYLES    */
+/* GLOBAL RESET AND BASE STYLES  */
 /* ============================= */
 * {
     margin: 0;
@@ -11,47 +11,58 @@
 body {
     background: #0b0b0f;
     color: #fff;
-    font-size: 16px;
     overflow-x: hidden;
+    font-size: 16px;
+}
+
+a { text-decoration: none; color: inherit; }
+
+button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: inherit;
 }
 
 /* ============================= */
 /* LOGIN SCREEN                  */
 /* ============================= */
 #login-screen {
+    width: 100%;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     background: radial-gradient(circle at 30% 30%, #0b0b0f, #1a1a24);
     position: relative;
 }
 
 .login-card {
-    background: rgba(25, 25, 40, 0.95);
+    width: 400px;
     padding: 50px;
-    border-radius: 40px;
-    box-shadow: 0 0 50px rgba(0, 200, 255, 0.5);
-    backdrop-filter: blur(15px);
+    border-radius: 30px;
+    background: rgba(20,20,40,0.95);
+    box-shadow: 0 0 50px rgba(0,200,255,0.5);
     text-align: center;
     transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .login-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 70px rgba(0, 200, 255, 0.7);
+    box-shadow: 0 0 70px rgba(0,200,255,0.7);
 }
 
 .login-card h1 {
     font-size: 36px;
     color: #00c8ff;
     text-shadow: 0 0 15px #00c8ff;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-.login-card input {
-    width: 80%;
-    padding: 15px 20px;
+#username-input {
+    width: 85%;
+    padding: 15px;
     margin-bottom: 20px;
     border-radius: 15px;
     border: 1px solid #333;
@@ -61,36 +72,36 @@ body {
     transition: all 0.3s ease;
 }
 
-.login-card input:focus {
+#username-input:focus {
     border: 1px solid #00c8ff;
     box-shadow: 0 0 15px #00c8ff;
     outline: none;
 }
 
-.login-card button {
-    width: 85%;
+#login-btn {
+    width: 88%;
     padding: 15px;
     border-radius: 20px;
-    background: linear-gradient(45deg, #00c8ff, #ff00ff);
-    font-weight: bold;
+    background: linear-gradient(45deg,#00c8ff,#ff00ff);
     color: #fff;
+    font-weight: bold;
     font-size: 16px;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
 }
 
-.login-card button:hover {
-    transform: scale(1.05);
+#login-btn:hover {
     box-shadow: 0 0 25px #00c8ff, 0 0 25px #ff00ff;
+    transform: translateY(-3px) scale(1.02);
 }
 
 /* ============================= */
-/* NAVBAR & TOPBAR               */
+/* TOPBAR & NAVBAR               */
 /* ============================= */
 .topbar {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 70px;
+    height: 60px;
     background: #121215;
     display: flex;
     justify-content: space-between;
@@ -98,13 +109,14 @@ body {
     padding: 0 25px;
     border-bottom: 2px solid #00c8ff;
     z-index: 100;
+    box-shadow: 0 0 15px rgba(0,200,255,0.3);
 }
 
 .navbar {
     position: fixed;
     bottom: 0;
     width: 100%;
-    height: 70px;
+    height: 60px;
     background: #121215;
     display: flex;
     justify-content: space-around;
@@ -116,9 +128,8 @@ body {
 .nav-item {
     font-size: 14px;
     opacity: 0.7;
-    text-align: center;
     transition: all 0.3s ease;
-    cursor: pointer;
+    text-align: center;
 }
 
 .nav-item.active {
@@ -131,146 +142,82 @@ body {
 /* ============================= */
 /* SECTIONS                      */
 /* ============================= */
-section {
+.section {
     display: none;
-    padding: 90px 20px 100px 20px;
-    min-height: calc(100vh - 140px);
-    animation-duration: 0.5s;
-}
-
-.fade-in {
-    animation-name: fadeIn;
+    padding: 80px 20px 80px 20px;
+    animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section h2 {
+    margin-bottom: 20px;
+    color: #00c8ff;
+    text-shadow: 0 0 10px #00c8ff;
 }
 
 /* ============================= */
-/* LISTS (Reminders, Bills, Expenses) */
+/* FORMS & INPUTS                */
 /* ============================= */
-ul {
-    list-style: none;
-}
-
-li {
-    background: #181820;
-    padding: 15px;
+input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
+    width: 80%;
+    padding: 12px;
     margin-bottom: 15px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,200,255,0.3);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 10px;
+    border: 1px solid #333;
+    background: #0c0c10;
+    color: #fff;
+    font-size: 14px;
     transition: all 0.3s ease;
 }
 
-li.slide-in {
-    animation: slideIn 0.4s ease forwards;
-}
-
-@keyframes slideIn {
-    from {opacity: 0; transform: translateX(-50px);}
-    to {opacity: 1; transform: translateX(0);}
+input:focus, select:focus {
+    border: 1px solid #00c8ff;
+    box-shadow: 0 0 10px #00c8ff;
+    outline: none;
 }
 
 button {
-    border: none;
-    outline: none;
-    background: linear-gradient(45deg, #00c8ff, #ff00ff);
-    color: #000;
-    padding: 6px 12px;
-    border-radius: 12px;
-    cursor: pointer;
+    padding: 12px 20px;
+    border-radius: 15px;
+    background: linear-gradient(45deg,#00c8ff,#ff00ff);
+    color: #fff;
     font-weight: bold;
     transition: all 0.3s ease;
 }
 
 button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px #00c8ff;
-}
-
-/* ============================= */
-/* MODALS                        */
-/* ============================= */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(11,11,15,0.9);
-    justify-content: center;
-    align-items: center;
-    z-index: 200;
-    animation: fadeIn 0.4s ease;
-}
-
-.modal-content {
-    background: #1c1c28;
-    padding: 30px;
-    border-radius: 25px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 0 40px rgba(0,200,255,0.5);
-    transform: scale(0.8);
-    animation: scaleIn 0.3s forwards;
-}
-
-@keyframes scaleIn {
-    to {transform: scale(1);}
-}
-
-/* ============================= */
-/* AI CHAT                        */
-/* ============================= */
-#chat-box {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 15px;
-    background: #181820;
-    border-radius: 15px;
-    box-shadow: 0 0 25px rgba(0,200,255,0.3);
-    margin-bottom: 10px;
-}
-
-#chat-box div {
-    margin-bottom: 10px;
-}
-
-#chat-box div.fade-in {
-    animation: fadeIn 0.3s ease;
-}
-
-#chat-input {
-    width: 80%;
-    padding: 12px;
-    border-radius: 15px;
-    border: 1px solid #333;
-    background: #0c0c10;
-    color: #fff;
-    margin-right: 10px;
-}
-
-#chat-send {
-    padding: 12px 20px;
-    border-radius: 15px;
-    background: linear-gradient(45deg, #00c8ff, #ff00ff);
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#chat-send:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px #00c8ff, 0 0 25px #ff00ff;
+    box-shadow: 0 0 20px #00c8ff, 0 0 20px #ff00ff;
 }
 
 /* ============================= */
-/* PROFILE                        */
+/* LISTS                         */
+/* ============================= */
+ul {
+    list-style: none;
+    margin-top: 10px;
+}
+
+li {
+    background: #181820;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,200,255,0.3);
+    transition: all 0.3s ease;
+}
+
+li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(0,200,255,0.5);
+}
+
+/* ============================= */
+/* PROFILE SECTION               */
 /* ============================= */
 .profile-container {
     text-align: center;
@@ -280,43 +227,72 @@ button:hover {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    border: 4px solid #00c8ff;
-    box-shadow: 0 0 25px #00c8ff inset;
     margin-bottom: 15px;
-    transition: all 0.3s ease;
-}
-
-.profile-avatar:hover {
-    transform: scale(1.05);
+    border: 4px solid #00c8ff;
+    box-shadow: 0 0 20px #00c8ff inset;
+    background: linear-gradient(135deg,#00c8ff,#ff00ff);
 }
 
 .profile-name {
     font-size: 26px;
     font-weight: bold;
     margin-bottom: 5px;
+    text-shadow: 0 0 10px #00c8ff;
 }
 
 .profile-bio {
     font-size: 14px;
     opacity: 0.8;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
-.profile-stats {
-    display: flex;
+#profile-stats {
+    display:flex;
     justify-content: space-around;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
-.profile-stats div {
-    background: #1c1c28;
-    padding: 15px 20px;
-    border-radius: 20px;
-    box-shadow: 0 0 15px rgba(0,200,255,0.3);
-    transition: all 0.3s ease;
+#profile-stats div {
+    background:#1c1c28;
+    padding:15px 20px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,200,255,0.3);
+    margin:5px;
 }
 
-.profile-stats div:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 35px rgba(0,200,255,0.5);
+/* ============================= */
+/* AI CHAT                        */
+/* ============================= */
+#chat-box {
+    height: 300px;
+    background: #181820;
+    padding: 10px;
+    border-radius: 12px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+#chat-box p {
+    margin-bottom: 8px;
+}
+
+#chat-input {
+    width: 75%;
+}
+
+#chat-send {
+    width: 20%;
+}
+
+/* ============================= */
+/* ANIMATIONS                     */
+/* ============================= */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px #00c8ff; }
+    50% { box-shadow: 0 0 20px #ff00ff; }
+    100% { box-shadow: 0 0 5px #00c8ff; }
+}
+
+button, .nav-item.active {
+    animation: glow 2s infinite alternate;
 }
