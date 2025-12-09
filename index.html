@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>LIFE-ADMIN</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>LIFE-ADMIN</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ===== LOGIN SCREEN ===== -->
+<!-- LOGIN SCREEN -->
 <div id="login-screen">
     <div class="login-card">
         <h1>LIFE-ADMIN</h1>
@@ -16,61 +16,75 @@
     </div>
 </div>
 
-<!-- ===== MAIN APP ===== -->
+<!-- MAIN APP -->
 <div id="main-app" style="display:none;">
     <!-- Topbar -->
     <div class="topbar">
         <span id="welcome-text"></span>
-        <span id="logout-btn" style="cursor:pointer;">Logout</span>
+        <span id="logout-btn">Logout</span>
     </div>
 
     <!-- Sections -->
-    <section id="reminders-section">
+    <section id="reminders-section" class="section">
         <h2>Reminders</h2>
-        <ul id="reminders-list"></ul>
-        <button id="add-reminder-btn">Add Reminder</button>
-    </section>
-
-    <section id="bills-section">
-        <h2>Bills</h2>
-        <ul id="bills-list"></ul>
-        <button id="add-bill-btn">Add Bill</button>
-    </section>
-
-    <section id="expenses-section">
-        <h2>Expenses</h2>
-        <ul id="expenses-list"></ul>
-        <button id="add-expense-btn">Add Expense</button>
-    </section>
-
-    <section id="tax-section">
-        <h2>Tax Calculator (SA)</h2>
-        <div id="tax-form">
-            <label>Salary: <input type="number" id="salary-input"></label>
-            <label>Deductions:
-                <select id="deduction-select">
-                    <option value="">Select</option>
-                    <option value="pension">Pension Fund</option>
-                    <option value="medical">Medical Aid</option>
-                    <option value="donation">Donations</option>
-                </select>
-            </label>
-            <div id="deduction-inputs"></div>
-            <button id="calculate-tax-btn">Calculate Tax</button>
+        <div id="reminder-form">
+            <input type="text" id="reminder-title" placeholder="Title">
+            <input type="date" id="reminder-date">
+            <input type="time" id="reminder-time">
+            <input type="text" id="reminder-reason" placeholder="Reason">
+            <input type="text" id="reminder-prep" placeholder="Preparation">
+            <button id="save-reminder-btn">Save Reminder</button>
         </div>
+        <ul id="reminders-list"></ul>
+    </section>
+
+    <section id="bills-section" class="section">
+        <h2>Bills</h2>
+        <div id="bill-form">
+            <input type="text" id="bill-name" placeholder="Bill Name">
+            <input type="number" id="bill-amount" placeholder="Amount">
+            <input type="date" id="bill-date">
+            <button id="save-bill-btn">Save Bill</button>
+        </div>
+        <ul id="bills-list"></ul>
+    </section>
+
+    <section id="expenses-section" class="section">
+        <h2>Expenses</h2>
+        <div id="expense-form">
+            <input type="text" id="expense-name" placeholder="Expense Name">
+            <input type="number" id="expense-amount" placeholder="Amount">
+            <button id="save-expense-btn">Add Expense</button>
+        </div>
+        <div id="expense-summary"></div>
+        <ul id="expenses-list"></ul>
+    </section>
+
+    <section id="tax-section" class="section">
+        <h2>Tax Calculator (SA)</h2>
+        <input type="number" id="salary-input" placeholder="Enter Salary">
+        <select id="deduction-select">
+            <option value="">Select Deduction</option>
+            <option value="pension">Pension Fund</option>
+            <option value="medical">Medical Aid</option>
+            <option value="donation">Donations</option>
+        </select>
+        <div id="deduction-inputs"></div>
+        <button id="calculate-tax-btn">Calculate Tax</button>
         <div id="tax-result"></div>
     </section>
 
-    <section id="profile-section">
+    <section id="profile-section" class="section">
         <h2>Profile</h2>
         <div class="profile-container">
             <div class="profile-avatar"></div>
             <div class="profile-name" id="profile-name"></div>
             <div class="profile-bio">Manage your LIFE-ADMIN data here</div>
+            <div id="profile-stats"></div>
         </div>
     </section>
 
-    <section id="ai-section">
+    <section id="ai-section" class="section">
         <h2>AI Chat</h2>
         <div id="chat-box"></div>
         <input type="text" id="chat-input" placeholder="Type a message...">
