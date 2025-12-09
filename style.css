@@ -1,7 +1,7 @@
 /* GLOBAL RESET */
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial',sans-serif; }
 body { background:#0b0b0f; color:#fff; overflow-x:hidden; font-size:16px; }
-.hidden { display:none; }
+.hidden { display:none !important; }
 
 /* LOGIN CARD */
 #login-screen { display:flex; justify-content:center; align-items:center; height:100vh; }
@@ -24,7 +24,7 @@ body { background:#0b0b0f; color:#fff; overflow-x:hidden; font-size:16px; }
 .reminder-delete { cursor:pointer; color:#ff4d4d; }
 
 /* CHAT */
-.chat-messages { height:300px; overflow-y:auto; border:1px solid #333; margin-bottom:10px; padding:10px; border-radius:12px; background:#181820; }
+.chat-messages { height:300px; overflow-y:auto; border:1px solid #333; margin-bottom:10px; padding:10px; border-radius:12px; background:#181820; display:flex; flex-direction:column; }
 .chat-bubble { padding:10px; margin:5px 0; border-radius:12px; max-width:70%; }
 .chat-user { background:#00c8ff; color:#000; align-self:flex-end; }
 .chat-ai { background:#333; color:#fff; align-self:flex-start; }
@@ -34,5 +34,6 @@ body { background:#0b0b0f; color:#fff; overflow-x:hidden; font-size:16px; }
 textarea { width:100%; padding:10px; border-radius:12px; background:#0c0c10; color:#fff; border:1px solid #333; }
 
 /* MODAL */
-.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; }
+.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:1000; }
 .modal-content { background:#181820; padding:30px; border-radius:20px; display:flex; flex-direction:column; gap:10px; width:300px; }
+.modal-content button { padding:10px; border-radius:12px; background:#00c8ff; color:#000; cursor:pointer; }
