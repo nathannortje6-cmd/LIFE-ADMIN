@@ -1,229 +1,251 @@
-/* ============================= */
-/* LIFE-ADMIN APP - FULL SCRIPT  */
-/* ============================= */
+// ===================== LOGIN =====================
+const loginScreen = document.getElementById('login-screen');
+const loginBtn = document.getElementById('login-btn');
+const loginUsername = document.getElementById('login-username');
+const usernameDisplay = document.getElementById('username-display');
 
-/* -------------- USER LOGIN --------------- */
-let currentUser = localStorage.getItem('currentUser');
-const usersKey = 'lifeAdminUsers';
-
-// Simple user system
-function createUser(username) {
-    let users = JSON.parse(localStorage.getItem(usersKey)) || {};
-    if (!users[username]) {
-        users[username] = { bills: [], expenses: [], reminders: [] };
-        localStorage.setItem(usersKey, JSON.stringify(users));
+loginBtn.addEventListener('click', () => {
+    const username = loginUsername.value.trim();
+    if(username) {
+        localStorage.setItem('username', username);
+        usernameDisplay.textContent = username;
+        loginScreen.style.display = 'none';
+        showSection('reminders-section');
     }
-    currentUser = username;
-    localStorage.setItem('currentUser', currentUser);
-    loadAllData();
+});
+
+// Load saved username
+const savedUsername = localStorage.getItem('username');
+if(savedUsername) {
+    usernameDisplay.textContent = savedUsername;
+    loginScreen.style.display = 'none';
 }
 
-// ------------------ BILLS ------------------
-const billModal = document.getElementById('bill-modal');
-document.getElementById('add-bill-btn').onclick = () => billModal.classList.remove('hidden');
-document.getElementById('close-bill').onclick = () => billModal.classList.add('hidden');
-
-document.getElementById('save-bill').onclick = () => {
-    const t = document.getElementById('bill-title').value.trim();
-    const a = parseFloat(document.getElementById('bill-amount').value);
-    const d = document.getElementById('bill-date').value;
-    const n = document.getElementById('bill-notes').value.trim();
-    if (!t || !a || !d) { alert("Fill all fields"); return; }
-
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].bills.push({ title: t, amount: a, date: d, notes: n });
-    users[currentUser].expenses.push({ title: t, amount: a, type: 'bill' });
-    localStorage.setItem(usersKey, JSON.stringify(users));
-
-    billModal.classList.add('hidden');
-    loadBills();
-    loadExpenses();
-    scheduleBillNotifications({ title: t, date: d });
-};
-
-function loadBills() {
-    const ul = document.getElementById('bill-list');
-    ul.innerHTML = '';
-    const userData = JSON.parse(localStorage.getItem(usersKey))[currentUser];
-    userData.bills.forEach((b, i) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<div>${b.title} | R${b.amount.toFixed(2)} | Due: ${b.date}</div>`;
-        const del = document.createElement('div');
-        del.textContent = 'Delete';
-        del.classList.add('delete-btn');
-        del.onclick = () => {
-            let users = JSON.parse(localStorage.getItem(usersKey));
-            users[currentUser].bills.splice(i, 1);
-            users[currentUser].expenses = users[currentUser].expenses.filter(e => !(e.type==='bill' && e.title===b.title));
-            localStorage.setItem(usersKey, JSON.stringify(users));
-            loadBills();
-            loadExpenses();
-        };
-        li.appendChild(del);
-        ul.appendChild(li);
-    });
+// ===================== NAVIGATION =====================
+function showSection(sectionId) {
+    const sections = document.querySelectorAll('section');
+    sections.forEach(sec => sec.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
 }
 
-// ------------------ EXPENSES ------------------
-const expenseModal = document.getElementById('expense-modal');
-document.getElementById('add-expense-btn').onclick = () => expenseModal.classList.remove('hidden');
-document.getElementById('close-expense').onclick = () => expenseModal.classList.add('hidden');
-
-document.getElementById('save-expense').onclick = () => {
-    const t = document.getElementById('expense-title').value.trim();
-    const a = parseFloat(document.getElementById('expense-amount').value);
-    if (!t || !a) { alert("Fill all fields"); return; }
-
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].expenses.push({ title: t, amount: a, type: 'manual' });
-    localStorage.setItem(usersKey, JSON.stringify(users));
-
-    expenseModal.classList.add('hidden');
-    loadExpenses();
-};
-
-function loadExpenses() {
-    const ul = document.getElementById('expense-list');
-    ul.innerHTML = '';
-    const userData = JSON.parse(localStorage.getItem(usersKey))[currentUser];
-    let total = 0;
-    userData.expenses.forEach((e,i)=>{
-        const li = document.createElement('li');
-        li.innerHTML = `<div>${e.title} | R${e.amount.toFixed(2)}</div>`;
-        const del = document.createElement('div'); del.textContent='Delete'; del.classList.add('delete-btn');
-        del.onclick = ()=>{
-            let users = JSON.parse(localStorage.getItem(usersKey));
-            users[currentUser].expenses.splice(i,1);
-            localStorage.setItem(usersKey, JSON.stringify(users));
-            loadExpenses();
-        };
-        li.appendChild(del);
-        ul.appendChild(li);
-        total += parseFloat(e.amount);
-    });
-    const totli = document.createElement('li');
-    totli.innerHTML = `<strong>Total Expenses: R${total.toFixed(2)}</strong>`;
-    ul.appendChild(totli);
-}
-
-// ------------------ REMINDERS ------------------
+// ===================== REMINDERS =====================
+let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+const reminderList = document.getElementById('reminder-list');
+const addReminderBtn = document.getElementById('add-reminder-btn');
 const reminderModal = document.getElementById('reminder-modal');
-document.getElementById('add-reminder-btn').onclick = () => reminderModal.classList.remove('hidden');
-document.getElementById('close-reminder').onclick = () => reminderModal.classList.add('hidden');
+const saveReminderBtn = document.getElementById('save-reminder');
+const closeReminderBtn = document.getElementById('close-reminder');
 
-document.getElementById('save-reminder').onclick = () => {
-    const t = document.getElementById('reminder-title').value.trim();
-    const d = document.getElementById('reminder-date').value;
+function renderReminders() {
+    reminderList.innerHTML = '';
+    reminders.forEach((rem, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${rem.title} - ${rem.date} ${rem.time}</span>
+                        <span class="delete-btn" onclick="deleteReminder(${index})">X</span>`;
+        reminderList.appendChild(li);
+    });
+    updateStats();
+}
+function deleteReminder(index) {
+    reminders.splice(index,1);
+    localStorage.setItem('reminders', JSON.stringify(reminders));
+    renderReminders();
+}
+addReminderBtn.addEventListener('click', () => reminderModal.classList.remove('hidden'));
+closeReminderBtn.addEventListener('click', () => reminderModal.classList.add('hidden'));
+saveReminderBtn.addEventListener('click', () => {
+    const title = document.getElementById('reminder-title').value;
+    const date = document.getElementById('reminder-date').value;
     const time = document.getElementById('reminder-time').value;
-    if(!t || !d || !time){ alert("Fill all fields"); return; }
+    const notes = document.getElementById('reminder-notes').value;
+    if(title && date && time){
+        reminders.push({title,date,time,notes});
+        localStorage.setItem('reminders', JSON.stringify(reminders));
+        renderReminders();
+        reminderModal.classList.add('hidden');
+        document.getElementById('reminder-title').value='';
+        document.getElementById('reminder-date').value='';
+        document.getElementById('reminder-time').value='';
+        document.getElementById('reminder-notes').value='';
+    }
+});
+renderReminders();
 
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].reminders.push({ title: t, date: d, time: time });
-    localStorage.setItem(usersKey, JSON.stringify(users));
+// Reminder notifications
+setInterval(()=>{
+    const now = new Date();
+    reminders.forEach(rem=>{
+        const remDate = new Date(`${rem.date}T${rem.time}`);
+        const diff = remDate - now;
+        if(diff>0 && diff<60000 && !rem.notified1min){
+            alert(`Reminder: ${rem.title} in 1 minute`);
+            rem.notified1min = true;
+        } else if(diff>0 && diff<86400000 && !rem.notified1day){
+            rem.notified1day = true; // could schedule better
+        } else if(diff>0 && diff<7200000 && !rem.notified2hr){
+            rem.notified2hr = true;
+        }
+    });
+}, 30000);
 
-    reminderModal.classList.add('hidden');
-    loadReminders();
-    scheduleReminder({ title:t, date:d, time:time });
+// ===================== BILLS =====================
+let bills = JSON.parse(localStorage.getItem('bills')) || [];
+const billList = document.getElementById('bill-list');
+const addBillBtn = document.getElementById('add-bill-btn');
+const billModal = document.getElementById('bill-modal');
+const saveBillBtn = document.getElementById('save-bill');
+const closeBillBtn = document.getElementById('close-bill');
+
+function renderBills() {
+    billList.innerHTML='';
+    bills.forEach((bill,index)=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${bill.title} - $${bill.amount} - ${bill.date}</span>
+                        <span class="delete-btn" onclick="deleteBill(${index})">X</span>`;
+        billList.appendChild(li);
+    });
+    updateStats();
+}
+function deleteBill(index){
+    bills.splice(index,1);
+    localStorage.setItem('bills',JSON.stringify(bills));
+    renderBills();
+}
+addBillBtn.addEventListener('click',()=> billModal.classList.remove('hidden'));
+closeBillBtn.addEventListener('click',()=> billModal.classList.add('hidden'));
+saveBillBtn.addEventListener('click',()=>{
+    const title=document.getElementById('bill-title').value;
+    const amount=document.getElementById('bill-amount').value;
+    const date=document.getElementById('bill-date').value;
+    const notes=document.getElementById('bill-notes').value;
+    if(title && amount && date){
+        bills.push({title,amount,date,notes});
+        localStorage.setItem('bills',JSON.stringify(bills));
+        renderBills();
+        billModal.classList.add('hidden');
+        document.getElementById('bill-title').value='';
+        document.getElementById('bill-amount').value='';
+        document.getElementById('bill-date').value='';
+        document.getElementById('bill-notes').value='';
+    }
+});
+renderBills();
+
+// ===================== EXPENSES =====================
+let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+const expenseList = document.getElementById('expense-list');
+const addExpenseBtn = document.getElementById('add-expense-btn');
+const expenseModal = document.getElementById('expense-modal');
+const saveExpenseBtn = document.getElementById('save-expense');
+const closeExpenseBtn = document.getElementById('close-expense');
+
+function renderExpenses(){
+    expenseList.innerHTML='';
+    expenses.forEach((exp,index)=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<span>${exp.title} - $${exp.amount}</span>
+                      <span class="delete-btn" onclick="deleteExpense(${index})">X</span>`;
+        expenseList.appendChild(li);
+    });
+    updateStats();
+}
+function deleteExpense(index){
+    expenses.splice(index,1);
+    localStorage.setItem('expenses',JSON.stringify(expenses));
+    renderExpenses();
+}
+addExpenseBtn.addEventListener('click',()=> expenseModal.classList.remove('hidden'));
+closeExpenseBtn.addEventListener('click',()=> expenseModal.classList.add('hidden'));
+saveExpenseBtn.addEventListener('click',()=>{
+    const title=document.getElementById('expense-title').value;
+    const amount=document.getElementById('expense-amount').value;
+    if(title && amount){
+        expenses.push({title,amount});
+        localStorage.setItem('expenses',JSON.stringify(expenses));
+        renderExpenses();
+        expenseModal.classList.add('hidden');
+        document.getElementById('expense-title').value='';
+        document.getElementById('expense-amount').value='';
+    }
+});
+renderExpenses();
+
+// ===================== PROFILE =====================
+const profileName=document.getElementById('profile-name');
+const profileBio=document.getElementById('profile-bio');
+const editProfileBtn=document.getElementById('edit-profile-btn');
+
+function updateStats(){
+    document.getElementById('stat-reminders').textContent=`Reminders: ${reminders.length}`;
+    document.getElementById('stat-bills').textContent=`Bills: ${bills.length}`;
+    document.getElementById('stat-expenses').textContent=`Expenses: ${expenses.length}`;
+}
+updateStats();
+
+editProfileBtn.addEventListener('click',()=>{
+    const name=prompt("Enter your name:",profileName.textContent);
+    const bio=prompt("Enter your bio:",profileBio.textContent);
+    if(name) profileName.textContent=name;
+    if(bio) profileBio.textContent=bio;
+});
+
+// ===================== TAX =====================
+const calculateTaxBtn=document.getElementById('calculate-tax-btn');
+calculateTaxBtn.addEventListener('click',()=>{
+    const income=Number(document.getElementById('income').value)||0;
+    const deductions=Number(document.getElementById('deductions').value)||0;
+    const dependents=Number(document.getElementById('dependents').value)||0;
+    const other=Number(document.getElementById('other-deductions').value)||0;
+    const dependentDeduction=16000; // example SARS approx
+    const taxable=income - deductions - (dependents*dependentDeduction) - other;
+    const tax = taxable*0.18; // simple flat 18% for demo
+    document.getElementById('tax-summary').textContent=`Taxable Income: $${taxable.toFixed(2)} | Total Tax: $${tax.toFixed(2)}`;
+    document.getElementById('tax-calculation').textContent=`Calculation: (${income} - ${deductions} - (${dependents}*${dependentDeduction}) - ${other}) * 0.18`;
+    document.getElementById('tax-results').classList.remove('hidden');
+});
+
+// ===================== AI CHAT =====================
+const chatBox=document.getElementById('chat-box');
+const chatInput=document.getElementById('chat-input');
+const chatSend=document.getElementById('chat-send');
+
+const responses={
+    "hi":["Hi! How are you?","Hello!"],
+    "how are you":["I'm fine, thanks! How about you?"],
+    "what is my name":["Your name is "+(savedUsername||"User")],
+    "open reminders":["showSection('reminders-section')"],
+    "open bills":["showSection('bills-section')"],
+    "open expenses":["showSection('expenses-section')"],
+    "open tax":["showSection('tax-section')"],
+    "open profile":["showSection('profile-section')"]
 };
 
-function loadReminders(){
-    const ul = document.getElementById('reminder-list');
-    ul.innerHTML='';
-    const userData = JSON.parse(localStorage.getItem(usersKey))[currentUser];
-    userData.reminders.forEach((r,i)=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<div>${r.title} | ${r.date} ${r.time}</div>`;
-        const del=document.createElement('div'); del.textContent='Delete'; del.classList.add('delete-btn');
-        del.onclick=()=>{
-            let users=JSON.parse(localStorage.getItem(usersKey));
-            users[currentUser].reminders.splice(i,1);
-            localStorage.setItem(usersKey, JSON.stringify(users));
-            loadReminders();
-        };
-        li.appendChild(del);
-        ul.appendChild(li);
-    });
-}
-
-function scheduleReminder(reminder){
-    const dateTime=new Date(`${reminder.date}T${reminder.time}`);
-    const now=new Date();
-    const diff=dateTime-now;
-    if(diff>0){
-        // Notification 1 minute before
-        setTimeout(()=>alert(`Reminder: ${reminder.title} (1 min before)`), diff-60000);
-        // Notification 2 hours before
-        if(diff>7200000)setTimeout(()=>alert(`Reminder: ${reminder.title} (2 hours before)`), diff-7200000);
-        // Notification on the time
-        setTimeout(()=>alert(`Reminder: ${reminder.title} NOW!`), diff);
-    }
-}
-
-function scheduleBillNotifications(bill){
-    const dateTime=new Date(`${bill.date}T08:00`); // Notify at 8AM by default
-    const now=new Date();
-    const diff=dateTime-now;
-    if(diff>0)setTimeout(()=>alert(`Bill due: ${bill.title} (R${bill.amount})`), diff);
-}
-
-// ------------------ AI CHAT ------------------
-const chatInput = document.getElementById('chat-input');
-const chatSend = document.getElementById('chat-send');
-const chatBox = document.getElementById('chat-box');
-
-chatSend.onclick = () => handleUserMessage();
-chatInput.addEventListener('keypress', e => { if(e.key==='Enter') handleUserMessage(); });
-
-function handleUserMessage(){
-    const msg=chatInput.value.trim();
-    if(!msg)return;
-    appendMessage('user',msg);
-    chatInput.value='';
-
-    // Command recognition
-    const lower = msg.toLowerCase();
-    if(lower.includes('go to bills')){ showSection('bills-section'); appendMessage('ai','Opening Bills...'); return; }
-    if(lower.includes('show expenses')){ showSection('expenses-section'); appendMessage('ai','Opening Expenses...'); return; }
-    if(lower.includes('set reminder')){ reminderModal.classList.remove('hidden'); appendMessage('ai','Opening Reminder Modal...'); return; }
-
-    // Normal conversation (simple local AI)
-    let aiResponse = generateAIResponse(msg);
-    setTimeout(()=>appendMessage('ai',aiResponse), 500); // simulate thinking
-}
-
-function appendMessage(sender,text){
+function addChatMessage(text, sender){
     const div=document.createElement('div');
-    div.classList.add('chat-msg', sender);
+    div.classList.add('chat-msg',sender);
     div.textContent=text;
     chatBox.appendChild(div);
     chatBox.scrollTop=chatBox.scrollHeight;
 }
 
-function showSection(id){
-    document.querySelectorAll('section').forEach(s=>s.style.display='none');
-    document.getElementById(id).style.display='block';
-}
-
-// Simple local AI responses
-function generateAIResponse(msg){
-    const responses=[
-        "Interesting, tell me more.",
-        "I see. Can you explain further?",
-        "Got it! Anything else you want me to do?",
-        "Hmm, let's think about that.",
-        "Understood. I can help with that!"
-    ];
-    return responses[Math.floor(Math.random()*responses.length)];
-}
-
-// ------------------ LOAD ALL DATA ------------------
-function loadAllData(){
-    loadBills();
-    loadExpenses();
-    loadReminders();
-}
-
-// ------------------ INITIAL LOAD ------------------
-document.addEventListener('DOMContentLoaded',()=>{
-    if(currentUser)loadAllData();
+chatSend.addEventListener('click',()=>{
+    const msg=chatInput.value.trim();
+    if(!msg) return;
+    addChatMessage(msg,'user');
+    let response="I don't understand that yet!";
+    const key=msg.toLowerCase();
+    if(responses[key]){
+        if(responses[key][0].startsWith("showSection")) {
+            eval(responses[key][0]);
+            response="Opened section!";
+        } else {
+            const arr=responses[key];
+            response=arr[Math.floor(Math.random()*arr.length)];
+        }
+    }
+    addChatMessage(response,'ai');
+    chatInput.value='';
+});
+chatInput.addEventListener('keypress',(e)=>{
+    if(e.key==='Enter') chatSend.click();
 });
