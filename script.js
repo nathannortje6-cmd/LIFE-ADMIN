@@ -1,313 +1,321 @@
-// =====================
-// GLOBAL VARIABLES
-// =====================
-let username = '';
-let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
-let bills = JSON.parse(localStorage.getItem('bills')) || [];
-let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-let profileData = JSON.parse(localStorage.getItem('profileData')) || {name:'Your Name', bio:'Your bio here...', avatar:'default-avatar.png'};
+/* ============================= */
+/* INITIALIZATION AND LOCAL STORAGE */
+/* ============================= */
 
-// =====================
-// LOGIN
-// =====================
-const loginScreen = document.getElementById('login-screen');
+let currentUser = null;
+
+// Sections
+const sections = {
+    reminders: document.getElementById('reminders-section'),
+    bills: document.getElementById('bills-section'),
+    expenses: document.getElementById('expenses-section'),
+    tax: document.getElementById('tax-section'),
+    profile: document.getElementById('profile-section'),
+    ai: document.getElementById('ai-section')
+};
+
+// Buttons & Inputs
 const loginBtn = document.getElementById('login-btn');
-const loginUsername = document.getElementById('login-username');
-const usernameDisplay = document.getElementById('username-display');
+const usernameInput = document.getElementById('username-input');
 
-loginBtn.addEventListener('click', () => {
-    const val = loginUsername.value.trim();
-    if(val){
-        username = val;
-        usernameDisplay.textContent = username;
-        loginScreen.style.display = 'none';
-        showSection('reminders-section');
-        renderAllSections();
-    }
-});
+const navButtons = document.querySelectorAll('.nav-item');
 
-// =====================
-// SECTION NAVIGATION
-// =====================
-function showSection(sectionId){
-    document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
-    const sec = document.getElementById(sectionId);
-    if(sec) sec.style.display = 'block';
-}
-
-// =====================
-// REMINDERS
-// =====================
+// Reminders
 const addReminderBtn = document.getElementById('add-reminder-btn');
 const reminderModal = document.getElementById('reminder-modal');
-const saveReminderBtn = document.getElementById('save-reminder');
-const closeReminderBtn = document.getElementById('close-reminder');
+const closeReminderModalBtn = document.getElementById('close-reminder-modal');
+const reminderForm = document.getElementById('reminder-form');
 const reminderList = document.getElementById('reminder-list');
 
-addReminderBtn.addEventListener('click', () => reminderModal.classList.remove('hidden'));
-closeReminderBtn.addEventListener('click', () => reminderModal.classList.add('hidden'));
-
-saveReminderBtn.addEventListener('click', () => {
-    const title = document.getElementById('reminder-title').value;
-    const date = document.getElementById('reminder-date').value;
-    const time = document.getElementById('reminder-time').value;
-    const notes = document.getElementById('reminder-notes').value;
-    if(title && date && time){
-        reminders.push({title,date,time,notes,notified1min:false,notified2hr:false,notified1day:false,notifiedMorning:false});
-        localStorage.setItem('reminders', JSON.stringify(reminders));
-        reminderModal.classList.add('hidden');
-        renderReminders();
-        updateStats();
-    }
-});
-
-function renderReminders(){
-    reminderList.innerHTML = '';
-    reminders.forEach((rem,i)=>{
-        const li = document.createElement('li');
-        li.textContent = `${rem.title} - ${rem.date} ${rem.time} (${rem.notes}) `;
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.onclick = ()=> { reminders.splice(i,1); localStorage.setItem('reminders', JSON.stringify(reminders)); renderReminders(); updateStats();};
-        li.appendChild(delBtn);
-        reminderList.appendChild(li);
-    });
-}
-
-// =====================
-// REMINDER NOTIFICATIONS
-// =====================
-function checkReminders(){
-    const now = new Date();
-    reminders.forEach(rem => {
-        const remDateTime = new Date(`${rem.date}T${rem.time}`);
-        const diffMs = remDateTime - now;
-        const diffMin = diffMs / (1000*60);
-
-        // 1 minute before
-        if(diffMin <= 1 && diffMin > 0 && !rem.notified1min){
-            alert(`Reminder (1 min): ${rem.title} - ${rem.notes}`);
-            rem.notified1min = true;
-        }
-        // 2 hours before
-        if(diffMin <= 120 && diffMin > 0 && !rem.notified2hr){
-            alert(`Reminder (2 hours): ${rem.title} - ${rem.notes}`);
-            rem.notified2hr = true;
-        }
-        // 1 day before
-        if(diffMin <= 1440 && diffMin > 0 && !rem.notified1day){
-            alert(`Reminder (1 day): ${rem.title} - ${rem.notes}`);
-            rem.notified1day = true;
-        }
-        // On the day morning (8 AM)
-        const remMorning = new Date(rem.date + 'T08:00');
-        const diffMorningMin = (remMorning - now) / (1000*60);
-        if(diffMorningMin <= 1 && diffMorningMin > 0 && !rem.notifiedMorning){
-            alert(`Reminder (Today 8AM): ${rem.title} - ${rem.notes}`);
-            rem.notifiedMorning = true;
-        }
-    });
-    localStorage.setItem('reminders', JSON.stringify(reminders));
-}
-setInterval(checkReminders, 60000); // check every minute
-
-// =====================
-// BILLS
-// =====================
+// Bills
 const addBillBtn = document.getElementById('add-bill-btn');
 const billModal = document.getElementById('bill-modal');
-const saveBillBtn = document.getElementById('save-bill');
-const closeBillBtn = document.getElementById('close-bill');
+const closeBillModalBtn = document.getElementById('close-bill-modal');
+const billForm = document.getElementById('bill-form');
 const billList = document.getElementById('bill-list');
 
-addBillBtn.addEventListener('click', () => billModal.classList.remove('hidden'));
-closeBillBtn.addEventListener('click', () => billModal.classList.add('hidden'));
-
-saveBillBtn.addEventListener('click', () => {
-    const title = document.getElementById('bill-title').value;
-    const amount = parseFloat(document.getElementById('bill-amount').value);
-    const date = document.getElementById('bill-date').value;
-    const notes = document.getElementById('bill-notes').value;
-    if(title && amount && date){
-        bills.push({title,amount,date,notes});
-        localStorage.setItem('bills', JSON.stringify(bills));
-        billModal.classList.add('hidden');
-        renderBills();
-        updateStats();
-    }
-});
-
-function renderBills(){
-    billList.innerHTML = '';
-    bills.forEach((bill,i)=>{
-        const li = document.createElement('li');
-        li.textContent = `${bill.title} - $${bill.amount} (${bill.date}) ${bill.notes} `;
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.onclick = ()=> { bills.splice(i,1); localStorage.setItem('bills', JSON.stringify(bills)); renderBills(); updateStats();};
-        li.appendChild(delBtn);
-        billList.appendChild(li);
-    });
-}
-
-// =====================
-// EXPENSES
-// =====================
+// Expenses
 const addExpenseBtn = document.getElementById('add-expense-btn');
 const expenseModal = document.getElementById('expense-modal');
-const saveExpenseBtn = document.getElementById('save-expense');
-const closeExpenseBtn = document.getElementById('close-expense');
+const closeExpenseModalBtn = document.getElementById('close-expense-modal');
+const expenseForm = document.getElementById('expense-form');
 const expenseList = document.getElementById('expense-list');
 
-addExpenseBtn.addEventListener('click', ()=> expenseModal.classList.remove('hidden'));
-closeExpenseBtn.addEventListener('click', ()=> expenseModal.classList.add('hidden'));
+// Tax
+const incomeInput = document.getElementById('tax-income');
+const deductionSelect = document.getElementById('tax-deduction-select');
+const deductionInputsContainer = document.getElementById('deduction-inputs');
+const calculateTaxBtn = document.getElementById('calculate-tax-btn');
+const taxResults = document.getElementById('tax-results');
 
-saveExpenseBtn.addEventListener('click', ()=>{
-    const title = document.getElementById('expense-title').value;
-    const amount = parseFloat(document.getElementById('expense-amount').value);
-    if(title && amount){
-        expenses.push({title,amount});
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        expenseModal.classList.add('hidden');
-        renderExpenses();
-        updateStats();
-    }
-});
-
-function renderExpenses(){
-    expenseList.innerHTML = '';
-    expenses.forEach((exp,i)=>{
-        const li = document.createElement('li');
-        li.textContent = `${exp.title} - $${exp.amount} `;
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.onclick = ()=> { expenses.splice(i,1); localStorage.setItem('expenses', JSON.stringify(expenses)); renderExpenses(); updateStats();};
-        li.appendChild(delBtn);
-        expenseList.appendChild(li);
-    });
-}
-
-// =====================
-// TAX CALCULATOR
-// =====================
-const calcTaxBtn = document.getElementById('calculate-tax-btn');
-calcTaxBtn.addEventListener('click', ()=>{
-    const income = parseFloat(document.getElementById('income').value) || 0;
-    const deductions = parseFloat(document.getElementById('deductions').value) || 0;
-    const dependents = parseInt(document.getElementById('dependents').value) || 0;
-    const other = parseFloat(document.getElementById('other-deductions').value) || 0;
-
-    let taxable = income - deductions - other - (dependents*15000);
-    let tax = 0;
-    if(taxable<=216200) tax = taxable*0.18;
-    else if(taxable<=337800) tax = 38916 + (taxable-216200)*0.26;
-    else if(taxable<=467500) tax = 70532 + (taxable-337800)*0.31;
-    else if(taxable<=613600) tax = 110739 + (taxable-467500)*0.36;
-    else if(taxable<=782200) tax = 163335 + (taxable-613600)*0.39;
-    else if(taxable<=1656600) tax = 229089 + (taxable-782200)*0.41;
-    else tax = 587593 + (taxable-1656600)*0.45;
-
-    document.getElementById('tax-summary').textContent = `Estimated Tax: $${tax.toFixed(2)}`;
-    document.getElementById('tax-calculation').textContent = `Taxable Income: $${taxable.toFixed(2)}`;
-    document.getElementById('tax-results').classList.remove('hidden');
-});
-
-// =====================
-// PROFILE
-// =====================
-const profileName = document.getElementById('profile-name');
-const profileBio = document.getElementById('profile-bio');
-const avatarUpload = document.getElementById('avatar-upload');
-const profilePic = document.getElementById('profile-pic');
-const editProfileBtn = document.getElementById('edit-profile-btn');
-
-function loadProfile(){
-    profileName.textContent = profileData.name;
-    profileBio.textContent = profileData.bio;
-    profilePic.src = profileData.avatar;
-}
-editProfileBtn.addEventListener('click', ()=>{
-    const newName = prompt('Enter new name', profileData.name);
-    const newBio = prompt('Enter new bio', profileData.bio);
-    if(newName) profileData.name = newName;
-    if(newBio) profileData.bio = newBio;
-    localStorage.setItem('profileData', JSON.stringify(profileData));
-    loadProfile();
-});
-
-avatarUpload.addEventListener('change', ()=>{
-    const file = avatarUpload.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = () => {
-            profileData.avatar = reader.result;
-            localStorage.setItem('profileData', JSON.stringify(profileData));
-            loadProfile();
-        };
-        reader.readAsDataURL(file);
-    }
-});
-loadProfile();
-
-// =====================
-// STATS UPDATE
-// =====================
-function updateStats(){
-    document.getElementById('stat-reminders').textContent = `Reminders: ${reminders.length}`;
-    document.getElementById('stat-bills').textContent = `Bills: ${bills.length}`;
-    document.getElementById('stat-expenses').textContent = `Expenses: ${expenses.length}`;
-}
-
-// =====================
-// RENDER ALL SECTIONS
-// =====================
-function renderAllSections(){
-    renderReminders();
-    renderBills();
-    renderExpenses();
-    updateStats();
-}
-
-// =====================
-// AI CHAT
-// =====================
+// AI Chat
 const chatBox = document.getElementById('chat-box');
 const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 
+// =============================
+// LOGIN FUNCTIONALITY
+// =============================
+loginBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim();
+    if (username === "") {
+        alert("Please enter a username");
+        return;
+    }
+    currentUser = username;
+    localStorage.setItem('currentUser', currentUser);
+    document.getElementById('login-screen').style.display = 'none';
+    sections.reminders.style.display = 'block';
+});
+
+// =============================
+// NAVIGATION
+// =============================
+navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        Object.values(sections).forEach(s => s.style.display = 'none');
+        const sectionName = btn.getAttribute('data-section');
+        sections[sectionName].style.display = 'block';
+        navButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sections[sectionName].classList.add('fade-in');
+    });
+});
+
+// =============================
+// REMINDERS
+// =============================
+addReminderBtn.addEventListener('click', () => reminderModal.style.display = 'block');
+closeReminderModalBtn.addEventListener('click', () => reminderModal.style.display = 'none');
+
+reminderForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(reminderForm);
+    const reminder = {
+        title: formData.get('reminder-title'),
+        date: formData.get('reminder-date'),
+        time: formData.get('reminder-time'),
+        notes: formData.get('reminder-notes')
+    };
+    addReminder(reminder);
+    reminderModal.style.display = 'none';
+    reminderForm.reset();
+    saveReminders();
+});
+
+let reminders = JSON.parse(localStorage.getItem('reminders')) || [];
+reminders.forEach(addReminder);
+
+function addReminder(reminder){
+    reminders.push(reminder);
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <div>
+            <strong>${reminder.title}</strong> <br>
+            ${reminder.date} ${reminder.time} <br>
+            ${reminder.notes}
+        </div>
+        <button class="delete-reminder">Delete</button>
+    `;
+    li.classList.add('slide-in');
+    li.querySelector('.delete-reminder').addEventListener('click', ()=>{
+        li.remove();
+        reminders = reminders.filter(r => r !== reminder);
+        saveReminders();
+    });
+    reminderList.appendChild(li);
+}
+
+function saveReminders(){
+    localStorage.setItem('reminders', JSON.stringify(reminders));
+}
+
+// =============================
+// BILLS
+// =============================
+addBillBtn.addEventListener('click', () => billModal.style.display = 'block');
+closeBillModalBtn.addEventListener('click', () => billModal.style.display = 'none');
+
+billForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(billForm);
+    const bill = {
+        name: formData.get('bill-name'),
+        amount: formData.get('bill-amount'),
+        dueDate: formData.get('bill-date')
+    };
+    addBill(bill);
+    billModal.style.display = 'none';
+    billForm.reset();
+    saveBills();
+});
+
+let bills = JSON.parse(localStorage.getItem('bills')) || [];
+bills.forEach(addBill);
+
+function addBill(bill){
+    bills.push(bill);
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <div>
+            <strong>${bill.name}</strong> <br>
+            R${bill.amount} - ${bill.dueDate}
+        </div>
+        <button class="delete-bill">Delete</button>
+    `;
+    li.classList.add('slide-in');
+    li.querySelector('.delete-bill').addEventListener('click', ()=>{
+        li.remove();
+        bills = bills.filter(b => b !== bill);
+        saveBills();
+    });
+    billList.appendChild(li);
+}
+
+function saveBills(){
+    localStorage.setItem('bills', JSON.stringify(bills));
+}
+
+// =============================
+// EXPENSES
+// =============================
+addExpenseBtn.addEventListener('click', () => expenseModal.style.display = 'block');
+closeExpenseModalBtn.addEventListener('click', () => expenseModal.style.display = 'none');
+
+expenseForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(expenseForm);
+    const expense = {
+        name: formData.get('expense-name'),
+        amount: formData.get('expense-amount')
+    };
+    addExpense(expense);
+    expenseModal.style.display = 'none';
+    expenseForm.reset();
+    saveExpenses();
+});
+
+let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+expenses.forEach(addExpense);
+
+function addExpense(expense){
+    expenses.push(expense);
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <div>
+            <strong>${expense.name}</strong> - R${expense.amount}
+        </div>
+        <button class="delete-expense">Delete</button>
+    `;
+    li.classList.add('slide-in');
+    li.querySelector('.delete-expense').addEventListener('click', ()=>{
+        li.remove();
+        expenses = expenses.filter(e => e !== expense);
+        saveExpenses();
+    });
+    expenseList.appendChild(li);
+}
+
+function saveExpenses(){
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+}
+
+// =============================
+// TAX (SOUTH AFRICA SARS)
+// =============================
+const SA_TAX_BRACKETS = [
+    { max: 237100, rate: 0.18, base: 0 },
+    { max: 370500, rate: 0.26, base: 42678 },
+    { max: 512800, rate: 0.31, base: 77362 },
+    { max: 673000, rate: 0.36, base: 121910 },
+    { max: 857900, rate: 0.39, base: 179147 },
+    { max: 1817000, rate: 0.41, base: 251258 },
+    { max: Infinity, rate: 0.45, base: 644489 }
+];
+
+const DEDUCTIONS_LIST = [
+    "Pension Fund Contributions",
+    "Retirement Annuity Contributions",
+    "Medical Aid Contributions",
+    "Donations (S18A)",
+    "Travel Allowance"
+];
+
+DED = [];
+
+deductionSelect.addEventListener('change', () => {
+    const value = deductionSelect.value;
+    if(!value) return;
+    const input = document.createElement('input');
+    input.placeholder = value + " amount";
+    input.dataset.deduction = value;
+    deductionInputsContainer.appendChild(input);
+    DED.push(input);
+});
+
+// Calculate Tax
+calculateTaxBtn.addEventListener('click', () => {
+    let income = parseFloat(incomeInput.value) || 0;
+    let totalDeduction = 0;
+    DED.forEach(d => { totalDeduction += parseFloat(d.value) || 0; });
+    const taxableIncome = income - totalDeduction;
+
+    let taxOwed = 0;
+    for(let bracket of SA_TAX_BRACKETS){
+        if(taxableIncome <= bracket.max){
+            taxOwed = bracket.base + (taxableIncome - (bracket.max - bracket.max/bracket.rate))*bracket.rate;
+            break;
+        }
+    }
+    taxResults.innerHTML = `
+        <strong>Taxable Income:</strong> R${taxableIncome.toFixed(2)} <br>
+        <strong>Estimated Tax:</strong> R${taxOwed.toFixed(2)} <br>
+        <strong>Deductions:</strong> R${totalDeduction.toFixed(2)}
+    `;
+});
+
+// =============================
+// AI CHAT
+// =============================
 const aiResponses = {
-    "hi":"Hi! How are you?",
-    "how are you":"I'm fine, thank you! How about you?",
-    "open reminders":"reminders-section",
-    "open bills":"bills-section",
-    "open expenses":"expenses-section",
-    "open tax":"tax-section",
-    "open profile":"profile-section"
+    "hi": "Hi! How are you?",
+    "how are you": "I'm fine, and you?",
+    "help with tax": () => switchSection('tax'),
+    "help with bills": () => switchSection('bills'),
+    "help with expenses": () => switchSection('expenses'),
+    "set a reminder": () => switchSection('reminders'),
+    "hello": "Hello! How can I assist you today?",
 };
 
 chatSend.addEventListener('click', sendMessage);
-chatInput.addEventListener('keypress', e=>{
-    if(e.key==='Enter') sendMessage();
-});
+chatInput.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 
 function sendMessage(){
     const msg = chatInput.value.trim();
     if(!msg) return;
-    addChatMessage(`You: ${msg}`);
-    chatInput.value = '';
+    appendChatMessage("You", msg);
+    chatInput.value = "";
 
-    const lower = msg.toLowerCase();
-    let response = aiResponses[lower] || "I'm not sure how to respond to that.";
-    if(Object.values(aiResponses).includes(lower)){
-        showSection(lower);
-        response = `Opening ${lower.replace('-section','')}...`;
-    }
-    addChatMessage(`AI: ${response}`);
+    let response = aiResponses[msg.toLowerCase()];
+    if(typeof response === "function") response();
+    else if(response) appendChatMessage("AI", response);
+    else appendChatMessage("AI", "Sorry, I don't understand yet.");
 }
 
-function addChatMessage(msg){
-    const p = document.createElement('p');
-    p.textContent = msg;
-    chatBox.appendChild(p);
+function appendChatMessage(sender, msg){
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${sender}:</strong> ${msg}`;
+    div.classList.add('fade-in');
+    chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// =============================
+// HELPER FUNCTION
+// =============================
+function switchSection(section){
+    Object.values(sections).forEach(s => s.style.display = 'none');
+    sections[section].style.display = 'block';
+    navButtons.forEach(b => b.classList.remove('active'));
+    document.querySelector(`.nav-item[data-section=${section}]`).classList.add('active');
 }
