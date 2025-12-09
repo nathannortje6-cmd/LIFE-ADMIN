@@ -1,1 +1,84 @@
 
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6b73ff, #000dff);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.hidden { display: none; }
+
+#login-container, #app-container {
+    background-color: rgba(0,0,0,0.7);
+    padding: 30px;
+    border-radius: 20px;
+    width: 350px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+input[type=text], input[type=password], input[type=file] {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: none;
+}
+
+button {
+    padding: 12px;
+    width: 100%;
+    margin: 8px 0;
+    border: none;
+    border-radius: 10px;
+    background-color: #ff6b6b;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover { background-color: #ff4757; }
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#task-list {
+    list-style: none;
+    padding: 0;
+}
+
+#task-list li {
+    background-color: rgba(255,255,255,0.1);
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#task-list li button {
+    width: auto;
+    padding: 5px 10px;
+    background-color: #1dd1a1;
+}
+
+#task-list li button:hover {
+    background-color: #10ac84;
+}
+
+#profile-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    margin-top: 10px;
+    object-fit: cover;
+}
