@@ -1,188 +1,272 @@
-// ---------------------------
-// GLOBAL VARIABLES
-// ---------------------------
-let username = "";
-let reminders = [];
-let bills = [];
-let expenses = [];
-let deductions = [];
+// ====== LOGIN ======
+const loginScreen = document.getElementById('login-screen');
+const app = document.getElementById('app');
+const startBtn = document.getElementById('start-btn');
+const usernameInput = document.getElementById('username');
+const topUsername = document.getElementById('top-username');
+const profileNameDisplay = document.getElementById('profile-name-display');
 
-// SARS tax brackets example (monthly)
-const taxBrackets = [
-    { upTo: 237100/12, rate: 0.18 },
-    { upTo: 370500/12, rate: 0.26 },
-    { upTo: 512800/12, rate: 0.31 },
-    { upTo: 673000/12, rate: 0.36 },
-    { upTo: 857900/12, rate: 0.39 },
-    { upTo: 1817000/12, rate: 0.41 },
-    { upTo: Infinity, rate: 0.45 }
-];
+startBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim();
+    if(username){
+        loginScreen.style.display = 'none';
+        app.style.display = 'block';
+        topUsername.textContent = username;
+        profileNameDisplay.textContent = username;
+        showSection('reminders');
+    } else {
+        alert("Enter a username!");
+    }
+});
 
-// ---------------------------
-// LOGIN
-// ---------------------------
-function startApp(){
-    username = document.getElementById("username").value.trim();
-    if(!username) { alert("Enter your name"); return; }
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("user-display").innerText = username;
-    showSection('reminder-section');
-}
+// ====== NAVIGATION ======
+const navItems = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('.section');
 
-// ---------------------------
-// NAVIGATION
-// ---------------------------
 function showSection(id){
-    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-    document.getElementById(id).style.display = 'block';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav-item[onclick*="${id}"]`).classList.add('active');
+    sections.forEach(sec => sec.style.display='none');
+    document.getElementById(id).style.display='block';
+    navItems.forEach(item => item.classList.remove('active'));
+    document.querySelector(`.nav-item[data-section="${id}"]`).classList.add('active');
 }
 
-// ---------------------------
-// REMINDERS
-// ---------------------------
-function addReminder(){
-    const text = document.getElementById("reminder-text").value;
-    const datetime = document.getElementById("reminder-datetime").value;
-    if(!text || !datetime) return alert("Fill all fields");
-    const reminder = { text, datetime };
-    reminders.push(reminder);
-    renderReminders();
-    alert("Reminder set!");
-}
+navItems.forEach(item => {
+    item.addEventListener('click', ()=> showSection(item.dataset.section));
+});
 
-function deleteReminder(index){
-    reminders.splice(index,1);
-    renderReminders();
-}
-
-function clearReminders(){
-    reminders = [];
-    renderReminders();
-}
+// ====== REMINDERS ======
+let reminders = [];
+const reminderList = document.getElementById('reminder-list');
+const reminderText = document.getElementById('reminder-text');
+const reminderDate = document.getElementById('reminder-date');
+const reminderTime = document.getElementById('reminder-time');
+const addReminderBtn = document.getElementById('add-reminder-btn');
+const clearRemindersBtn = document.getElementById('clear-reminders-btn');
 
 function renderReminders(){
-    const list = document.getElementById("reminder-list");
-    list.innerHTML="";
+    reminderList.innerHTML='';
     reminders.forEach((r,i)=>{
-        const li=document.createElement("li");
-        li.innerHTML=`${r.text} - ${r.datetime} <button onclick="deleteReminder(${i})">Delete</button>`;
-        list.appendChild(li);
+        const li = document.createElement('li');
+        li.textContent = `${r.text} | ${r.date} ${r.time}`;
+        const delBtn = document.createElement('button');
+        delBtn.textContent='Delete';
+        delBtn.addEventListener('click', ()=>{
+            reminders.splice(i,1);
+            renderReminders();
+            updateProfileStats();
+        });
+        li.appendChild(delBtn);
+        reminderList.appendChild(li);
     });
 }
 
-// ---------------------------
-// BILLS
-// ---------------------------
-function addBill(){
-    const name = document.getElementById("bill-name").value;
-    const amount = document.getElementById("bill-amount").value;
-    const date = document.getElementById("bill-date").value;
-    if(!name||!amount||!date) return alert("Fill all fields");
-    bills.push({name,amount,date});
-    renderBills();
-}
+addReminderBtn.addEventListener('click', ()=>{
+    if(reminderText.value && reminderDate.value && reminderTime.value){
+        reminders.push({
+            text: reminderText.value,
+            date: reminderDate.value,
+            time: reminderTime.value
+        });
+        reminderText.value=''; reminderDate.value=''; reminderTime.value='';
+        renderReminders();
+        updateProfileStats();
+        alert("Reminder set!");
+    } else alert("Fill all fields!");
+});
 
-function deleteBill(index){ bills.splice(index,1); renderBills(); }
+clearRemindersBtn.addEventListener('click', ()=>{
+    reminders=[];
+    renderReminders();
+    updateProfileStats();
+});
+
+// ====== BILLS ======
+let bills=[];
+const billList = document.getElementById('bill-list');
+const billName = document.getElementById('bill-name');
+const billAmount = document.getElementById('bill-amount');
+const billDate = document.getElementById('bill-date');
+const addBillBtn = document.getElementById('add-bill-btn');
 
 function renderBills(){
-    const list=document.getElementById("bill-list"); list.innerHTML="";
+    billList.innerHTML='';
     bills.forEach((b,i)=>{
-        const li=document.createElement("li");
-        li.innerHTML=`${b.name}: R${b.amount} - ${b.date} <button onclick="deleteBill(${i})">Delete</button>`;
-        list.appendChild(li);
+        const li = document.createElement('li');
+        li.textContent=`${b.name} | R${b.amount} | ${b.date}`;
+        const delBtn = document.createElement('button');
+        delBtn.textContent='Delete';
+        delBtn.addEventListener('click', ()=>{
+            bills.splice(i,1);
+            renderBills();
+            updateProfileStats();
+        });
+        li.appendChild(delBtn);
+        billList.appendChild(li);
     });
 }
 
-// ---------------------------
-// EXPENSES
-// ---------------------------
-function addExpense(){
-    const name = document.getElementById("expense-name").value;
-    const amount = document.getElementById("expense-amount").value;
-    if(!name||!amount) return alert("Fill all fields");
-    expenses.push({name,amount});
-    renderExpenses();
-}
+addBillBtn.addEventListener('click', ()=>{
+    if(billName.value && billAmount.value && billDate.value){
+        bills.push({
+            name: billName.value,
+            amount: parseFloat(billAmount.value),
+            date: billDate.value
+        });
+        billName.value=''; billAmount.value=''; billDate.value='';
+        renderBills();
+        updateProfileStats();
+    } else alert("Fill all fields!");
+});
 
-function deleteExpense(index){ expenses.splice(index,1); renderExpenses(); }
+// ====== EXPENSES ======
+let expenses=[];
+const expenseList = document.getElementById('expense-list');
+const expenseName = document.getElementById('expense-name');
+const expenseAmount = document.getElementById('expense-amount');
+const expenseDate = document.getElementById('expense-date');
+const addExpenseBtn = document.getElementById('add-expense-btn');
+const totalExpensesEl = document.getElementById('total-expenses');
 
 function renderExpenses(){
-    const list=document.getElementById("expense-list"); list.innerHTML="";
+    expenseList.innerHTML='';
+    let total=0;
     expenses.forEach((e,i)=>{
-        const li=document.createElement("li");
-        li.innerHTML=`${e.name}: R${e.amount} <button onclick="deleteExpense(${i})">Delete</button>`;
-        list.appendChild(li);
+        total+=e.amount;
+        const li = document.createElement('li');
+        li.textContent=`${e.name} | R${e.amount} | ${e.date}`;
+        const delBtn = document.createElement('button');
+        delBtn.textContent='Delete';
+        delBtn.addEventListener('click', ()=>{
+            expenses.splice(i,1);
+            renderExpenses();
+            updateProfileStats();
+        });
+        li.appendChild(delBtn);
+        expenseList.appendChild(li);
     });
+    totalExpensesEl.textContent = total;
 }
 
-// ---------------------------
-// TAX
-// ---------------------------
-function addDeduction(type, amount){
-    if(!type||!amount) return;
-    deductions.push({type,amount:Number(amount)});
-    renderDeductions();
+addExpenseBtn.addEventListener('click', ()=>{
+    if(expenseName.value && expenseAmount.value && expenseDate.value){
+        expenses.push({
+            name: expenseName.value,
+            amount: parseFloat(expenseAmount.value),
+            date: expenseDate.value
+        });
+        expenseName.value=''; expenseAmount.value=''; expenseDate.value='';
+        renderExpenses();
+        updateProfileStats();
+    } else alert("Fill all fields!");
+});
+
+// ====== TAX (South Africa) ======
+const monthlySalary = document.getElementById('monthly-salary');
+const ageInput = document.getElementById('age');
+const pensionInput = document.getElementById('pension');
+const raInput = document.getElementById('ra');
+const medicalMembersInput = document.getElementById('medical-members');
+const taxOutput = document.getElementById('tax-output');
+const calculateTaxBtn = document.getElementById('calculate-tax-btn');
+const clearTaxBtn = document.getElementById('clear-tax-btn');
+
+// Tax function from you
+function calculateTaxSA({ annualSalary, age=30, pensionContribution=0, retirementAnnuity=0, medicalAidMembers=1 }){
+    const deductions = pensionContribution + retirementAnnuity;
+    let taxableIncome = annualSalary - deductions;
+    if(taxableIncome<0) taxableIncome=0;
+
+    const brackets = [
+        { threshold: 237100, rate: 0.18, base:0 },
+        { threshold: 370500, rate:0.26, base:42678 },
+        { threshold: 512800, rate:0.31, base:77364 },
+        { threshold: 673000, rate:0.36, base:121910 },
+        { threshold: 857900, rate:0.39, base:179940 },
+        { threshold: 1817000, rate:0.41, base:251946 },
+        { threshold: Infinity, rate:0.45, base:644704 }
+    ];
+
+    let tax=0;
+    for(let i=0;i<brackets.length;i++){
+        if(taxableIncome <= brackets[i].threshold){
+            tax = brackets[i].base + (taxableIncome - (brackets[i-1]?.threshold || 0))*brackets[i].rate;
+            break;
+        }
+    }
+
+    const primaryRebate=17478;
+    const secondaryRebate= age>=65?9594:0;
+    const tertiaryRebate= age>=75?3194:0;
+    const totalRebate=primaryRebate+secondaryRebate+tertiaryRebate;
+
+    tax -= totalRebate;
+    if(tax<0) tax=0;
+
+    const uif=Math.min(annualSalary,17712)*0.01;
+    const netSalary=annualSalary - tax - uif;
+
+    return { taxableIncome, tax: Math.round(tax), uif: Math.round(uif), netSalary: Math.round(netSalary) };
 }
 
-function removeDeduction(index){ deductions.splice(index,1); renderDeductions(); }
+calculateTaxBtn.addEventListener('click', ()=>{
+    const salary=parseFloat(monthlySalary.value)*12;
+    const age=parseInt(ageInput.value);
+    const pension=parseFloat(pensionInput.value);
+    const ra=parseFloat(raInput.value);
+    const medical=parseInt(medicalMembersInput.value);
 
-function clearTax(){ deductions=[]; document.getElementById("tax-output").innerHTML="Tax: R0.00"; document.getElementById("deductions-list").innerHTML=""; }
+    const result = calculateTaxSA({ annualSalary:salary, age:age, pensionContribution:pension, retirementAnnuity:ra, medicalAidMembers:medical });
 
-function renderDeductions(){
-    const container=document.getElementById("deductions-list"); container.innerHTML="";
-    deductions.forEach((d,i)=>{
-        const div=document.createElement("div");
-        div.classList.add("deduction-item");
-        div.innerHTML=`${d.type}: R${d.amount.toFixed(2)} <button onclick="removeDeduction(${i})" class="remove-btn">Remove</button>`;
-        container.appendChild(div);
-    });
-    calculateTax();
+    taxOutput.innerHTML=`<p>Taxable Income: R${result.taxableIncome}</p>
+    <p>Tax Payable: R${result.tax}</p>
+    <p>UIF: R${result.uif}</p>
+    <p>Net Salary: R${result.netSalary}</p>`;
+});
+
+clearTaxBtn.addEventListener('click', ()=>{
+    monthlySalary.value=''; ageInput.value=''; pensionInput.value=''; raInput.value=''; medicalMembersInput.value='';
+    taxOutput.innerHTML='';
+});
+
+// ====== PROFILE STATS ======
+function updateProfileStats(){
+    document.getElementById('profile-bills').textContent = bills.length;
+    document.getElementById('profile-expenses').textContent = expenses.length;
+    document.getElementById('profile-reminders').textContent = reminders.length;
 }
 
-function calculateTax(){
-    const income=Number(document.getElementById("income").value||0);
-    const totalDeductions = deductions.reduce((sum,d)=>sum+d.amount,0);
-    const taxableIncome = Math.max(0,income - totalDeductions);
-    let bracket=taxBrackets.find(b=>taxableIncome<=b.upTo);
-    if(!bracket) bracket=taxBrackets[taxBrackets.length-1];
-    const taxAmount = taxableIncome*bracket.rate;
-    document.getElementById("tax-output").innerHTML=`
-        Income: R${income.toFixed(2)}<br>
-        Total Deductions: R${totalDeductions.toFixed(2)}<br>
-        Taxable Income: R${taxableIncome.toFixed(2)}<br>
-        Tax Rate: ${(bracket.rate*100).toFixed(0)}%<br>
-        Tax Amount: R${taxAmount.toFixed(2)}
-    `;
-}
+// ====== AI CHAT ======
+const chatBox = document.getElementById('chat-box');
+const chatInput = document.getElementById('chat-input');
+const sendChatBtn = document.getElementById('send-chat-btn');
 
-// ---------------------------
-// AI CHAT
-// ---------------------------
 const aiResponses = {
-    "hi":"Hello! I am LIFE-ADMIN. I can help you with Reminders, Bills, Expenses, Tax, and more.",
-    "how are you":"I'm fine, thank you! How can I assist you today?",
-    "set a reminder":()=>showSection('reminder-section'),
-    "help with tax":()=>showSection('tax-section'),
-    "help with bills":()=>showSection('bills-section'),
-    "help with expenses":()=>showSection('expenses-section')
+    "hi":"Hi! I'm LIFE-ADMIN. I can help with Reminders, Bills, Expenses, Tax, and more.",
+    "hello":"Hello! Ready to organize your life?",
+    "how are you":"I'm fine! How are you?",
+    "help":"You can ask me to go to any section: 'Go to Tax', 'Set Reminder', 'Help with Bills', etc.",
+    "set reminder":"Go to Reminders section and click 'Add Reminder'.",
+    "go to tax":"Navigating to Tax section..."; showSection('tax'); return;
 };
 
-function sendMessage(){
-    const input=document.getElementById("chat-input");
-    const text=input.value.toLowerCase();
-    if(!text) return;
-    const chatBox=document.getElementById("chat-box");
-    const userMsg=document.createElement("p"); userMsg.innerHTML=`<b>You:</b> ${text}`;
-    chatBox.appendChild(userMsg);
+sendChatBtn.addEventListener('click', ()=>{
+    const msg = chatInput.value.toLowerCase();
+    if(!msg) return;
+    const p = document.createElement('p');
+    p.textContent = `You: ${chatInput.value}`;
+    chatBox.appendChild(p);
 
-    let response=aiResponses[text];
-    if(typeof response==="function"){ response(); response="Done!"; }
-    if(!response) response="I am not sure about that. Ask me to help with reminders, bills, expenses, or tax.";
+    // AI reply
+    let reply = "I'm not sure about that.";
+    if(aiResponses[msg]){
+        if(typeof aiResponses[msg]==="function"){ aiResponses[msg](); return; }
+        reply = aiResponses[msg];
+    }
 
-    const aiMsg=document.createElement("p"); aiMsg.innerHTML=`<b>AI:</b> ${response}`;
-    chatBox.appendChild(aiMsg);
-    input.value="";
-    chatBox.scrollTop=chatBox.scrollHeight;
-}
+    const aiP = document.createElement('p');
+    aiP.textContent = `AI: ${reply}`;
+    chatBox.appendChild(aiP);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    chatInput.value='';
+});
+
