@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>LIFE-ADMIN</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>LIFE-ADMIN</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -18,88 +18,101 @@
 
 <!-- MAIN APP -->
 <div id="main-app" style="display:none;">
-    <!-- Topbar -->
+
+    <!-- TOPBAR -->
     <div class="topbar">
-        <span id="welcome-text"></span>
-        <span id="logout-btn">Logout</span>
+        <div>Life-Admin</div>
+        <div id="username-display"></div>
     </div>
 
-    <!-- Sections -->
-    <section id="reminders-section" class="section">
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-item active" onclick="showSection('reminders')">Reminders</div>
+        <div class="nav-item" onclick="showSection('bills')">Bills</div>
+        <div class="nav-item" onclick="showSection('expenses')">Expenses</div>
+        <div class="nav-item" onclick="showSection('tax')">Tax</div>
+        <div class="nav-item" onclick="showSection('ai')">AI</div>
+        <div class="nav-item" onclick="showSection('profile')">Profile</div>
+    </div>
+
+    <!-- SECTIONS -->
+
+    <!-- REMINDERS -->
+    <div id="reminders" class="section">
         <h2>Reminders</h2>
-        <div id="reminder-form">
-            <input type="text" id="reminder-title" placeholder="Title">
-            <input type="date" id="reminder-date">
-            <input type="time" id="reminder-time">
-            <input type="text" id="reminder-reason" placeholder="Reason">
-            <input type="text" id="reminder-prep" placeholder="Preparation">
-            <button id="save-reminder-btn">Save Reminder</button>
-        </div>
-        <ul id="reminders-list"></ul>
-    </section>
+        <input type="text" id="reminder-title" placeholder="Title">
+        <input type="date" id="reminder-date">
+        <input type="time" id="reminder-time">
+        <input type="text" id="reminder-note" placeholder="Notes">
+        <button onclick="addReminder()">Add Reminder</button>
+        <ul id="reminder-list"></ul>
+    </div>
 
-    <section id="bills-section" class="section">
+    <!-- BILLS -->
+    <div id="bills" class="section">
         <h2>Bills</h2>
-        <div id="bill-form">
-            <input type="text" id="bill-name" placeholder="Bill Name">
-            <input type="number" id="bill-amount" placeholder="Amount">
-            <input type="date" id="bill-date">
-            <button id="save-bill-btn">Save Bill</button>
-        </div>
-        <ul id="bills-list"></ul>
-    </section>
+        <input type="text" id="bill-name" placeholder="Bill Name">
+        <input type="number" id="bill-amount" placeholder="Amount">
+        <input type="date" id="bill-date">
+        <button onclick="addBill()">Add Bill</button>
+        <ul id="bill-list"></ul>
+    </div>
 
-    <section id="expenses-section" class="section">
+    <!-- EXPENSES -->
+    <div id="expenses" class="section">
         <h2>Expenses</h2>
-        <div id="expense-form">
-            <input type="text" id="expense-name" placeholder="Expense Name">
-            <input type="number" id="expense-amount" placeholder="Amount">
-            <button id="save-expense-btn">Add Expense</button>
-        </div>
-        <div id="expense-summary"></div>
-        <ul id="expenses-list"></ul>
-    </section>
+        <input type="text" id="expense-name" placeholder="Expense Name">
+        <input type="number" id="expense-amount" placeholder="Amount">
+        <button onclick="addExpense()">Add Expense</button>
+        <ul id="expense-list"></ul>
+        <p id="expenses-total">Total Expenses: R0.00</p>
+    </div>
 
-    <section id="tax-section" class="section">
+    <!-- TAX -->
+    <div id="tax" class="section">
         <h2>Tax Calculator (SA)</h2>
-        <input type="number" id="salary-input" placeholder="Enter Salary">
-        <select id="deduction-select">
-            <option value="">Select Deduction</option>
-            <option value="pension">Pension Fund</option>
-            <option value="medical">Medical Aid</option>
-            <option value="donation">Donations</option>
-        </select>
-        <div id="deduction-inputs"></div>
-        <button id="calculate-tax-btn">Calculate Tax</button>
-        <div id="tax-result"></div>
-    </section>
+        <input type="number" id="income" placeholder="Monthly Income">
+        <input type="number" id="dependants" placeholder="Number of Dependants">
 
-    <section id="profile-section" class="section">
+        <div>
+            <select id="deduction-type">
+                <option value="Medical Aid">Medical Aid</option>
+                <option value="Pension Fund">Pension Fund</option>
+                <option value="Retirement Annuity">Retirement Annuity</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="number" id="deduction-amount" placeholder="Amount">
+            <button onclick="addDeduction()">Add Deduction</button>
+        </div>
+
+        <ul id="deduction-list"></ul>
+        <button onclick="calculateTax()">Calculate Tax</button>
+        <p id="tax-result"></p>
+    </div>
+
+    <!-- AI -->
+    <div id="ai" class="section">
+        <h2>AI Assistant</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="chat-input" placeholder="Say something...">
+        <button id="chat-send">Send</button>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="profile" class="section">
         <h2>Profile</h2>
         <div class="profile-container">
             <div class="profile-avatar"></div>
-            <div class="profile-name" id="profile-name"></div>
-            <div class="profile-bio">Manage your LIFE-ADMIN data here</div>
-            <div id="profile-stats"></div>
+            <div class="profile-name" id="profile-name-display"></div>
+            <div class="profile-bio">Your Life Admin Assistant</div>
+            <div id="profile-stats">
+                <div id="stat-reminders">Reminders: 0</div>
+                <div id="stat-bills">Bills: 0</div>
+                <div id="stat-expenses">Expenses: 0</div>
+            </div>
         </div>
-    </section>
-
-    <section id="ai-section" class="section">
-        <h2>AI Chat</h2>
-        <div id="chat-box"></div>
-        <input type="text" id="chat-input" placeholder="Type a message...">
-        <button id="chat-send">Send</button>
-    </section>
-
-    <!-- Bottom Navbar -->
-    <div class="navbar">
-        <div class="nav-item active" data-section="reminders-section">Reminders</div>
-        <div class="nav-item" data-section="bills-section">Bills</div>
-        <div class="nav-item" data-section="expenses-section">Expenses</div>
-        <div class="nav-item" data-section="tax-section">Tax</div>
-        <div class="nav-item" data-section="profile-section">Profile</div>
-        <div class="nav-item" data-section="ai-section">AI Chat</div>
     </div>
+
 </div>
 
 <script src="script.js"></script>
