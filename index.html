@@ -1,127 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>LIFE-ADMIN</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>LIFE-ADMIN</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen">
-        <div class="login-card">
-            <h1>LIFE-ADMIN</h1>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button id="loginBtn">Login / Register</button>
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h1>LIFE‑ADMIN</h1>
+      <input type="text" id="username" placeholder="Username"/>
+      <input type="password" id="password" placeholder="Password"/>
+      <button id="loginBtn">Login / Register</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app-container" class="hidden">
+    <div id="sidebar">
+      <div class="sidebar-item active" data-page="reminders-page">Reminders</div>
+      <div class="sidebar-item" data-page="chat-page">AI Chat</div>
+      <div class="sidebar-item" data-page="bills-page">Bills</div>
+      <div class="sidebar-item" data-page="taxes-page">Taxes</div>
+      <div class="sidebar-item" data-page="expenses-page">Expenses</div>
+      <div class="sidebar-item" data-page="profile-page">Profile</div>
+      <button id="logoutBtn">Logout</button>
+    </div>
+    <div id="pages-container">
+      <!-- Reminders Page -->
+      <div id="reminders-page" class="page">
+        <h2>Reminders</h2>
+        <button id="add-reminder-btn">+ Add Reminder</button>
+        <ul id="reminder-list"></ul>
+      </div>
+
+      <!-- AI Chat Page -->
+      <div id="chat-page" class="page hidden">
+        <h2>AI Assistant</h2>
+        <div id="chat-messages" class="chat-messages"></div>
+        <input type="text" id="chat-text" placeholder="Ask or command the assistant..."/>
+        <button id="send-chat">Send</button>
+      </div>
+
+      <!-- Bills Page -->
+      <div id="bills-page" class="page hidden">
+        <h2>Bills</h2>
+        <button id="add-bill-btn">+ Add Bill</button>
+        <ul id="bill-list"></ul>
+      </div>
+
+      <!-- Taxes Page -->
+      <div id="taxes-page" class="page hidden">
+        <h2>Tax Calculator</h2>
+        <div id="tax-inputs">
+          <label>Monthly salary: <input type="number" id="tax-salary" placeholder="R"/></label><br/>
+          <label>Annual bonuses: <input type="number" id="tax-bonuses" placeholder="R"/></label><br/>
+          <label>Pension / retirement contributions: <input type="number" id="tax-pension" placeholder="R"/></label><br/>
+          <label>Medical aid / health deductions: <input type="number" id="tax-medical" placeholder="R"/></label><br/>
+          <label>Other deductions: <input type="number" id="tax-otherded" placeholder="R"/></label><br/>
+          <label>Dependents: <input type="number" id="tax-dependents" placeholder="Number"/></label><br/>
+          <button id="calculate-tax">Calculate Tax</button>
         </div>
+        <div id="tax-result"></div>
+      </div>
+
+      <!-- Expenses Page -->
+      <div id="expenses-page" class="page hidden">
+        <h2>Expenses</h2>
+        <ul id="expense-list"></ul>
+        <button id="add-expense-btn">+ Add Expense</button>
+      </div>
+
+      <!-- Profile Page -->
+      <div id="profile-page" class="page hidden">
+        <h2>Profile</h2>
+        <img id="profile-preview" src="" alt="Avatar"/>
+        <input type="file" id="profile-pic"/>
+        <textarea id="bio" placeholder="Your bio"></textarea>
+      </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="app-container" class="hidden">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="sidebar-item active" data-page="reminders-page">Reminders</div>
-            <div class="sidebar-item" data-page="chat-page">AI Chat</div>
-            <div class="sidebar-item" data-page="bills-page">Bills</div>
-            <div class="sidebar-item" data-page="taxes-page">Taxes</div>
-            <div class="sidebar-item" data-page="expenses-page">Expenses</div>
-            <div class="sidebar-item" data-page="profile-page">Profile</div>
-            <button id="logoutBtn">Logout</button>
-        </div>
-
-        <!-- PAGES -->
-        <div id="pages-container">
-            <!-- REMINDERS -->
-            <div id="reminders-page" class="page">
-                <h2>Reminders</h2>
-                <button id="add-reminder-btn">+ Add Reminder</button>
-                <ul id="reminder-list"></ul>
-            </div>
-
-            <!-- CHAT -->
-            <div id="chat-page" class="page hidden">
-                <h2>AI Chat</h2>
-                <div id="chat-messages" class="chat-messages"></div>
-                <input type="text" id="chat-text" placeholder="Type a message...">
-                <button id="send-chat">Send</button>
-            </div>
-
-            <!-- BILLS -->
-            <div id="bills-page" class="page hidden">
-                <h2>Bills</h2>
-                <button id="add-bill-btn">+ Add Bill</button>
-                <ul id="bill-list"></ul>
-            </div>
-
-            <!-- TAXES -->
-            <div id="taxes-page" class="page hidden">
-                <h2>Taxes</h2>
-                <div id="tax-inputs">
-                    <label>Salary: <input type="number" id="tax-salary" placeholder="Monthly salary"></label>
-                    <label>Dependents: <input type="number" id="tax-dependents" placeholder="Number"></label>
-                    <label>Deductions: <input type="number" id="tax-deductions" placeholder="R"></label>
-                    <button id="calculate-tax">Calculate Tax</button>
-                </div>
-                <div id="tax-result"></div>
-            </div>
-
-            <!-- EXPENSES -->
-            <div id="expenses-page" class="page hidden">
-                <h2>Expenses</h2>
-                <ul id="expense-list"></ul>
-                <button id="add-expense-btn">+ Add Expense</button>
-            </div>
-
-            <!-- PROFILE -->
-            <div id="profile-page" class="page hidden">
-                <h2>Profile</h2>
-                <img id="profile-preview" src="" alt="Profile Picture">
-                <input type="file" id="profile-pic">
-                <textarea id="bio" placeholder="Your bio"></textarea>
-                <div id="stats"></div>
-            </div>
-        </div>
-
-        <!-- REMINDER MODAL -->
-        <div id="reminder-modal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Add Reminder</h3>
-                <input type="text" id="reminder-title" placeholder="Title">
-                <input type="date" id="reminder-date">
-                <input type="time" id="reminder-time">
-                <input type="text" id="reminder-reason" placeholder="Reason">
-                <input type="text" id="reminder-instruction" placeholder="Instruction">
-                <button id="save-reminder">Save</button>
-                <button id="close-reminder">Close</button>
-            </div>
-        </div>
-
-        <!-- BILL MODAL -->
-        <div id="bill-modal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Add Bill</h3>
-                <input type="text" id="bill-title" placeholder="Bill Name">
-                <input type="number" id="bill-amount" placeholder="Amount">
-                <input type="date" id="bill-date">
-                <input type="text" id="bill-notes" placeholder="Notes / Instructions">
-                <button id="save-bill">Save</button>
-                <button id="close-bill">Close</button>
-            </div>
-        </div>
-
-        <!-- EXPENSE MODAL -->
-        <div id="expense-modal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Add Expense</h3>
-                <input type="text" id="expense-title" placeholder="Expense Name">
-                <input type="number" id="expense-amount" placeholder="Amount">
-                <button id="save-expense">Save</button>
-                <button id="close-expense">Close</button>
-            </div>
-        </div>
-
+    <!-- MODALS -->
+    <!-- Reminder Modal -->
+    <div id="reminder-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Add Reminder</h3>
+        <input type="text" id="reminder-title" placeholder="Title"/>
+        <input type="date" id="reminder-date"/>
+        <input type="time" id="reminder-time"/>
+        <input type="text" id="reminder-reason" placeholder="Reason"/>
+        <input type="text" id="reminder-instruction" placeholder="Instruction"/>
+        <button id="save-reminder">Save</button>
+        <button id="close-reminder">Close</button>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Bill Modal -->
+    <div id="bill-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Add Bill</h3>
+        <input type="text" id="bill-title" placeholder="Bill Name"/>
+        <input type="number" id="bill-amount" placeholder="Amount (R)"/>
+        <input type="date" id="bill-date"/>
+        <input type="text" id="bill-notes" placeholder="Notes / Instructions"/>
+        <button id="save-bill">Save</button>
+        <button id="close-bill">Close</button>
+      </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expense-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Add Expense</h3>
+        <input type="text" id="expense-title" placeholder="Expense Name"/>
+        <input type="number" id="expense-amount" placeholder="Amount (R)"/>
+        <button id="save-expense">Save</button>
+        <button id="close-expense">Close</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
