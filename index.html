@@ -7,32 +7,102 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="login-container">
-        <h1>LIFE-ADMIN</h1>
-        <input type="text" id="username" placeholder="Enter username">
-        <input type="password" id="password" placeholder="Enter password">
-        <button id="loginBtn">Login / Register</button>
+    <!-- Floating Glows -->
+    <div class="floating-glow glow-1"></div>
+    <div class="floating-glow glow-2"></div>
+    <div class="floating-glow glow-3"></div>
+
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>LIFE-ADMIN</h1>
+            <p>Welcome! Login or Register to continue</p>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="loginBtn">Login / Register</button>
+        </div>
     </div>
 
+    <!-- App Container -->
     <div id="app-container" class="hidden">
-        <header>
-            <h2>Welcome, <span id="user-display"></span></h2>
-            <button id="logoutBtn">Logout</button>
-        </header>
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <div class="sidebar-item active" data-page="reminders">Reminders</div>
+            <div class="sidebar-item" data-page="ai-chat">AI Chat</div>
+            <div class="sidebar-item" data-page="emails">Emails</div>
+            <div class="sidebar-item" data-page="bills">Bills</div>
+            <div class="sidebar-item" data-page="taxes">Taxes</div>
+            <div class="sidebar-item" data-page="profile">Profile</div>
+            <div class="sidebar-item logout" id="logoutBtn">Logout</div>
+        </aside>
 
-        <section id="profile-section">
-            <h3>Profile</h3>
-            <input type="text" id="bio" placeholder="Enter your bio">
-            <input type="file" id="profile-pic">
-            <img id="profile-preview" src="" alt="Profile Picture">
-        </section>
+        <!-- Main Content -->
+        <main id="main-content">
+            <!-- Reminders Page -->
+            <section class="page" id="reminders">
+                <div class="page-header">
+                    <h2>Reminders / To-Do</h2>
+                    <button id="add-reminder-btn">+</button>
+                </div>
+                <ul id="reminder-list"></ul>
+            </section>
 
-        <section id="task-section">
-            <h3>Tasks</h3>
-            <input type="text" id="task-input" placeholder="Add a new task">
-            <button id="add-task">Add Task</button>
-            <ul id="task-list"></ul>
-        </section>
+            <!-- AI Chat Page -->
+            <section class="page hidden" id="ai-chat">
+                <h2>AI Chat</h2>
+                <div id="chat-container">
+                    <div id="chat-messages"></div>
+                    <div id="chat-input">
+                        <input type="text" id="chat-text" placeholder="Ask AI...">
+                        <button id="send-chat">Send</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Emails Page -->
+            <section class="page hidden" id="emails">
+                <h2>Emails</h2>
+                <ul id="email-list"></ul>
+            </section>
+
+            <!-- Bills Page -->
+            <section class="page hidden" id="bills">
+                <h2>Bills</h2>
+                <ul id="bill-list"></ul>
+            </section>
+
+            <!-- Taxes Page -->
+            <section class="page hidden" id="taxes">
+                <h2>Taxes</h2>
+                <ul id="tax-list"></ul>
+            </section>
+
+            <!-- Profile Page -->
+            <section class="page hidden" id="profile">
+                <h2>Profile</h2>
+                <input type="file" id="profile-pic">
+                <img id="profile-preview" src="" alt="Avatar">
+                <input type="text" id="bio" placeholder="Bio">
+                <div id="profile-stats">
+                    <div id="stat-reminders">Reminders: 0</div>
+                    <div id="stat-tasks">Completed Tasks: 0</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Reminder Modal -->
+    <div id="reminder-modal" class="hidden">
+        <div class="modal-card">
+            <h3>Add Reminder</h3>
+            <input type="text" id="reminder-title" placeholder="Title">
+            <input type="date" id="reminder-date">
+            <input type="time" id="reminder-time">
+            <input type="text" id="reminder-reason" placeholder="Reason">
+            <input type="text" id="reminder-instruction" placeholder="Instructions">
+            <button id="save-reminder">Save</button>
+            <button id="close-reminder">Cancel</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
