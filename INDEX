@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFE-ADMIN</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-container">
+        <h1>LIFE-ADMIN</h1>
+        <input type="text" id="username" placeholder="Enter username">
+        <input type="password" id="password" placeholder="Enter password">
+        <button id="loginBtn">Login / Register</button>
+    </div>
 
+    <div id="app-container" class="hidden">
+        <header>
+            <h2>Welcome, <span id="user-display"></span></h2>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <section id="profile-section">
+            <h3>Profile</h3>
+            <input type="text" id="bio" placeholder="Enter your bio">
+            <input type="file" id="profile-pic">
+            <img id="profile-preview" src="" alt="Profile Picture">
+        </section>
+
+        <section id="task-section">
+            <h3>Tasks</h3>
+            <input type="text" id="task-input" placeholder="Add a new task">
+            <button id="add-task">Add Task</button>
+            <ul id="task-list"></ul>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
