@@ -1,128 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LIFE-ADMIN</title>
-  <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life-Admin</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="login-card">
-      <h1>LIFE‑ADMIN</h1>
-      <input type="text" id="username" placeholder="Username"/>
-      <input type="password" id="password" placeholder="Password"/>
-      <button id="loginBtn">Login / Register</button>
-    </div>
-  </div>
 
-  <!-- APP -->
-  <div id="app-container" class="hidden">
-    <div id="sidebar">
-      <div class="sidebar-item active" data-page="reminders-page">Reminders</div>
-      <div class="sidebar-item" data-page="chat-page">AI Chat</div>
-      <div class="sidebar-item" data-page="bills-page">Bills</div>
-      <div class="sidebar-item" data-page="taxes-page">Taxes</div>
-      <div class="sidebar-item" data-page="expenses-page">Expenses</div>
-      <div class="sidebar-item" data-page="profile-page">Profile</div>
-      <button id="logoutBtn">Logout</button>
+    <!-- ===================== TOPBAR ===================== -->
+    <div class="topbar">
+        <h1>Life-Admin</h1>
+        <div id="user-display">Hello, <span id="username-display"></span></div>
     </div>
-    <div id="pages-container">
-      <!-- Reminders Page -->
-      <div id="reminders-page" class="page">
+
+    <!-- ===================== NAVBAR ===================== -->
+    <div class="navbar">
+        <div class="nav-item" onclick="showSection('reminders-section')">Reminders</div>
+        <div class="nav-item" onclick="showSection('bills-section')">Bills</div>
+        <div class="nav-item" onclick="showSection('expenses-section')">Expenses</div>
+        <div class="nav-item" onclick="showSection('chat-section')">AI Chat</div>
+    </div>
+
+    <!-- ===================== REMINDERS ===================== -->
+    <section id="reminders-section">
         <h2>Reminders</h2>
-        <button id="add-reminder-btn">+ Add Reminder</button>
+        <button id="add-reminder-btn">Add Reminder</button>
         <ul id="reminder-list"></ul>
-      </div>
+    </section>
 
-      <!-- AI Chat Page -->
-      <div id="chat-page" class="page hidden">
-        <h2>AI Assistant</h2>
-        <div id="chat-messages" class="chat-messages"></div>
-        <input type="text" id="chat-text" placeholder="Ask or command the assistant..."/>
-        <button id="send-chat">Send</button>
-      </div>
-
-      <!-- Bills Page -->
-      <div id="bills-page" class="page hidden">
-        <h2>Bills</h2>
-        <button id="add-bill-btn">+ Add Bill</button>
-        <ul id="bill-list"></ul>
-      </div>
-
-      <!-- Taxes Page -->
-      <div id="taxes-page" class="page hidden">
-        <h2>Tax Calculator</h2>
-        <div id="tax-inputs">
-          <label>Monthly salary: <input type="number" id="tax-salary" placeholder="R"/></label><br/>
-          <label>Annual bonuses: <input type="number" id="tax-bonuses" placeholder="R"/></label><br/>
-          <label>Pension / retirement contributions: <input type="number" id="tax-pension" placeholder="R"/></label><br/>
-          <label>Medical aid / health deductions: <input type="number" id="tax-medical" placeholder="R"/></label><br/>
-          <label>Other deductions: <input type="number" id="tax-otherded" placeholder="R"/></label><br/>
-          <label>Dependents: <input type="number" id="tax-dependents" placeholder="Number"/></label><br/>
-          <button id="calculate-tax">Calculate Tax</button>
-        </div>
-        <div id="tax-result"></div>
-      </div>
-
-      <!-- Expenses Page -->
-      <div id="expenses-page" class="page hidden">
-        <h2>Expenses</h2>
-        <ul id="expense-list"></ul>
-        <button id="add-expense-btn">+ Add Expense</button>
-      </div>
-
-      <!-- Profile Page -->
-      <div id="profile-page" class="page hidden">
-        <h2>Profile</h2>
-        <img id="profile-preview" src="" alt="Avatar"/>
-        <input type="file" id="profile-pic"/>
-        <textarea id="bio" placeholder="Your bio"></textarea>
-      </div>
-    </div>
-
-    <!-- MODALS -->
     <!-- Reminder Modal -->
-    <div id="reminder-modal" class="modal hidden">
-      <div class="modal-content">
+    <div id="reminder-modal" class="hidden">
         <h3>Add Reminder</h3>
-        <input type="text" id="reminder-title" placeholder="Title"/>
-        <input type="date" id="reminder-date"/>
-        <input type="time" id="reminder-time"/>
-        <input type="text" id="reminder-reason" placeholder="Reason"/>
-        <input type="text" id="reminder-instruction" placeholder="Instruction"/>
-        <button id="save-reminder">Save</button>
+        <input id="reminder-title" placeholder="Title">
+        <input id="reminder-date" type="date">
+        <input id="reminder-time" type="time">
+        <button id="save-reminder">Save Reminder</button>
         <button id="close-reminder">Close</button>
-      </div>
     </div>
+
+    <!-- ===================== BILLS ===================== -->
+    <section id="bills-section" style="display:none;">
+        <h2>Bills</h2>
+        <button id="add-bill-btn">Add Bill</button>
+        <ul id="bill-list"></ul>
+    </section>
 
     <!-- Bill Modal -->
-    <div id="bill-modal" class="modal hidden">
-      <div class="modal-content">
+    <div id="bill-modal" class="hidden">
         <h3>Add Bill</h3>
-        <input type="text" id="bill-title" placeholder="Bill Name"/>
-        <input type="number" id="bill-amount" placeholder="Amount (R)"/>
-        <input type="date" id="bill-date"/>
-        <input type="text" id="bill-notes" placeholder="Notes / Instructions"/>
-        <button id="save-bill">Save</button>
+        <input id="bill-title" placeholder="Title">
+        <input id="bill-amount" type="number" placeholder="Amount">
+        <input id="bill-date" type="date">
+        <input id="bill-notes" placeholder="Notes">
+        <button id="save-bill">Save Bill</button>
         <button id="close-bill">Close</button>
-      </div>
     </div>
+
+    <!-- ===================== EXPENSES ===================== -->
+    <section id="expenses-section" style="display:none;">
+        <h2>Expenses</h2>
+        <button id="add-expense-btn">Add Expense</button>
+        <ul id="expense-list"></ul>
+    </section>
 
     <!-- Expense Modal -->
-    <div id="expense-modal" class="modal hidden">
-      <div class="modal-content">
+    <div id="expense-modal" class="hidden">
         <h3>Add Expense</h3>
-        <input type="text" id="expense-title" placeholder="Expense Name"/>
-        <input type="number" id="expense-amount" placeholder="Amount (R)"/>
-        <button id="save-expense">Save</button>
+        <input id="expense-title" placeholder="Title">
+        <input id="expense-amount" type="number" placeholder="Amount">
+        <button id="save-expense">Save Expense</button>
         <button id="close-expense">Close</button>
-      </div>
     </div>
 
-  </div>
+    <!-- ===================== AI CHAT ===================== -->
+    <section id="chat-section" style="display:none;">
+        <h2>AI Chat</h2>
+        <div id="chat-box" class="chat-box"></div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button id="chat-send">Send</button>
+        </div>
+    </section>
 
-  <script src="script.js"></script>
+    <!-- ===================== LOGIN / USER ===================== -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>Life-Admin</h1>
+            <p>Enter your username to start</p>
+            <input type="text" id="login-username" placeholder="Username">
+            <button id="login-btn">Start</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Login logic
+        const loginScreen = document.getElementById('login-screen');
+        const loginBtn = document.getElementById('login-btn');
+        const usernameInput = document.getElementById('login-username');
+        const usernameDisplay = document.getElementById('username-display');
+
+        loginBtn.onclick = () => {
+            const name = usernameInput.value.trim();
+            if(!name){ alert("Enter username"); return; }
+            createUser(name);
+            usernameDisplay.textContent = name;
+            loginScreen.style.display = 'none';
+            showSection('reminders-section');
+        };
+
+        // If already logged in
+        if(currentUser){
+            loginScreen.style.display='none';
+            usernameDisplay.textContent=currentUser;
+            showSection('reminders-section');
+        }
+    </script>
 </body>
 </html>
