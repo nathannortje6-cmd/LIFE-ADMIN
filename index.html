@@ -19,6 +19,8 @@
         <div class="nav-item" onclick="showSection('reminders-section')">Reminders</div>
         <div class="nav-item" onclick="showSection('bills-section')">Bills</div>
         <div class="nav-item" onclick="showSection('expenses-section')">Expenses</div>
+        <div class="nav-item" onclick="showSection('tax-section')">Tax</div>
+        <div class="nav-item" onclick="showSection('profile-section')">Profile</div>
         <div class="nav-item" onclick="showSection('chat-section')">AI Chat</div>
     </div>
 
@@ -35,6 +37,7 @@
         <input id="reminder-title" placeholder="Title">
         <input id="reminder-date" type="date">
         <input id="reminder-time" type="time">
+        <input id="reminder-notes" placeholder="Notes / Instructions">
         <button id="save-reminder">Save Reminder</button>
         <button id="close-reminder">Close</button>
     </div>
@@ -73,6 +76,39 @@
         <button id="close-expense">Close</button>
     </div>
 
+    <!-- ===================== TAX ===================== -->
+    <section id="tax-section" style="display:none;">
+        <h2>Tax Calculator</h2>
+        <div id="tax-form">
+            <input id="income" type="number" placeholder="Annual Income">
+            <input id="deductions" type="number" placeholder="Deductions">
+            <input id="dependents" type="number" placeholder="Number of Dependents">
+            <input id="other-deductions" type="number" placeholder="Other Deductions">
+            <button id="calculate-tax-btn">Calculate Tax</button>
+        </div>
+        <div id="tax-results" class="hidden">
+            <h3>Tax Breakdown</h3>
+            <p id="tax-summary"></p>
+            <p id="tax-calculation"></p>
+        </div>
+    </section>
+
+    <!-- ===================== PROFILE ===================== -->
+    <section id="profile-section" style="display:none;">
+        <h2>Profile</h2>
+        <div class="profile-container">
+            <img src="default-avatar.png" id="profile-pic" class="profile-avatar">
+            <h3 id="profile-name">Your Name</h3>
+            <p id="profile-bio">Your bio here...</p>
+            <div class="profile-stats">
+                <div id="stat-reminders">Reminders: 0</div>
+                <div id="stat-bills">Bills: 0</div>
+                <div id="stat-expenses">Expenses: 0</div>
+            </div>
+            <button id="edit-profile-btn">Edit Profile</button>
+        </div>
+    </section>
+
     <!-- ===================== AI CHAT ===================== -->
     <section id="chat-section" style="display:none;">
         <h2>AI Chat</h2>
@@ -83,7 +119,7 @@
         </div>
     </section>
 
-    <!-- ===================== LOGIN / USER ===================== -->
+    <!-- ===================== LOGIN ===================== -->
     <div id="login-screen">
         <div class="login-card">
             <h1>Life-Admin</h1>
@@ -94,28 +130,5 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        // Login logic
-        const loginScreen = document.getElementById('login-screen');
-        const loginBtn = document.getElementById('login-btn');
-        const usernameInput = document.getElementById('login-username');
-        const usernameDisplay = document.getElementById('username-display');
-
-        loginBtn.onclick = () => {
-            const name = usernameInput.value.trim();
-            if(!name){ alert("Enter username"); return; }
-            createUser(name);
-            usernameDisplay.textContent = name;
-            loginScreen.style.display = 'none';
-            showSection('reminders-section');
-        };
-
-        // If already logged in
-        if(currentUser){
-            loginScreen.style.display='none';
-            usernameDisplay.textContent=currentUser;
-            showSection('reminders-section');
-        }
-    </script>
 </body>
 </html>
