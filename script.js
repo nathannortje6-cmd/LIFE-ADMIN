@@ -11,28 +11,7 @@ const sidebarItems = document.querySelectorAll('.sidebar-item');
 const pages = document.querySelectorAll('.page');
 const logoutBtn = document.getElementById('logoutBtn');
 
-// REMINDERS MODAL
-const reminderModal = document.getElementById('reminder-modal');
-const addReminderBtn = document.getElementById('add-reminder-btn');
-const closeReminderBtn = document.getElementById('close-reminder');
-const saveReminderBtn = document.getElementById('save-reminder');
 
-const reminderList = document.getElementById('reminder-list');
-const reminderTitle = document.getElementById('reminder-title');
-const reminderDate = document.getElementById('reminder-date');
-const reminderTime = document.getElementById('reminder-time');
-const reminderReason = document.getElementById('reminder-reason');
-const reminderInstruction = document.getElementById('reminder-instruction');
-
-// CHAT
-const chatMessages = document.getElementById('chat-messages');
-const chatText = document.getElementById('chat-text');
-const sendChatBtn = document.getElementById('send-chat');
-
-// PROFILE
-const profilePicInput=document.getElementById('profile-pic');
-const profilePreview=document.getElementById('profile-preview');
-const bioInput=document.getElementById('bio');
 
 // --------------------
 // INIT LOCALSTORAGE
@@ -58,7 +37,28 @@ loginBtn.addEventListener('click', () => {
     currentUser = username;
     showApp();
 });
+// REMINDERS MODAL
+const reminderModal = document.getElementById('reminder-modal');
+const addReminderBtn = document.getElementById('add-reminder-btn');
+const closeReminderBtn = document.getElementById('close-reminder');
+const saveReminderBtn = document.getElementById('save-reminder');
 
+const reminderList = document.getElementById('reminder-list');
+const reminderTitle = document.getElementById('reminder-title');
+const reminderDate = document.getElementById('reminder-date');
+const reminderTime = document.getElementById('reminder-time');
+const reminderReason = document.getElementById('reminder-reason');
+const reminderInstruction = document.getElementById('reminder-instruction');
+
+// CHAT
+const chatMessages = document.getElementById('chat-messages');
+const chatText = document.getElementById('chat-text');
+const sendChatBtn = document.getElementById('send-chat');
+
+// PROFILE
+const profilePicInput=document.getElementById('profile-pic');
+const profilePreview=document.getElementById('profile-preview');
+const bioInput=document.getElementById('bio');
 // --------------------
 // SHOW APP
 // --------------------
