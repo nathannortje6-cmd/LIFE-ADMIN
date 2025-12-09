@@ -134,7 +134,6 @@ function calculateTax(){
     taxableIncome -= dependantDeduction;
 
     let tax=0;
-    // SA 2025/26 tax brackets
     if(taxableIncome<=98750) tax = taxableIncome*0.18;
     else if(taxableIncome<=195750) tax=17775+(taxableIncome-98750)*0.26;
     else if(taxableIncome<=305850) tax=40437+(taxableIncome-195750)*0.31;
@@ -154,13 +153,10 @@ const chatInput = document.getElementById("chat-input");
 const chatSend = document.getElementById("chat-send");
 
 const aiResponses = {
-    "hi":"Hi! How are you? I can help with Reminders, Bills, Expenses, Tax and your Profile.",
+    "hi":"Hi! I can help with Reminders, Bills, Expenses, Tax, and Profile. You can ask me to navigate or set tasks.",
     "how are you":"I'm fine, thank you!",
-    "help reminders":"Taking you to Reminders section..."; showSection("reminders"); return "",
-    "help bills":"Taking you to Bills section..."; showSection("bills"); return "",
-    "help expenses":"Taking you to Expenses section..."; showSection("expenses"); return "",
-    "help tax":"Taking you to Tax section..."; showSection("tax"); return "",
-    "help profile":"Taking you to Profile section..."; showSection("profile"); return ""
+    "help reminders":"Taking you to Reminders section...","help bills":"Taking you to Bills section...","help expenses":"Taking you to Expenses section...",
+    "help tax":"Taking you to Tax section...","help profile":"Taking you to Profile section..."
 };
 
 chatSend.addEventListener("click", sendMessage);
@@ -175,12 +171,17 @@ function sendMessage(){
     chatInput.value="";
 
     let response = aiResponses[msg.toLowerCase()];
-    if(response===undefined) response = "AI: I'm still learning, but I can help with reminders, bills, expenses, tax and profile.";
+    if(response===undefined) response = "AI: I'm still learning, but I can help with Reminders, Bills, Expenses, Tax, and Profile.";
 
-    if(response!=="") {
-        const aiP = document.createElement("p");
-        aiP.textContent = "AI: "+response;
-        chatBox.appendChild(aiP);
-        chatBox.scrollTop=chatBox.scrollHeight;
-    }
+    const aiP = document.createElement("p");
+    aiP.textContent = "AI: "+response;
+    chatBox.appendChild(aiP);
+    chatBox.scrollTop=chatBox.scrollHeight;
+
+    // Navigation commands
+    if(msg.toLowerCase().includes("reminder")) showSection("reminders");
+    if(msg.toLowerCase().includes("bill")) showSection("bills");
+    if(msg.toLowerCase().includes("expense")) showSection("expenses");
+    if(msg.toLowerCase().includes("tax")) showSection("tax");
+    if(msg.toLowerCase().includes("profile")) showSection("profile");
 }
