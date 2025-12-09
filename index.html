@@ -2,97 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFE-ADMIN</title>
+    <title>Buzzify App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- ============================= -->
 <!-- LOGIN SCREEN -->
+<!-- ============================= -->
 <div id="login-screen">
+    <div class="floating-glow glow-1"></div>
+    <div class="floating-glow glow-2"></div>
+    <div class="floating-glow glow-3"></div>
+
     <div class="login-card">
-        <h1>LIFE-ADMIN</h1>
-        <input type="text" id="username" placeholder="Enter username">
+        <h1>Welcome</h1>
+        <input type="text" id="username" placeholder="Enter your name">
         <button id="start-btn">Start</button>
     </div>
 </div>
 
-<!-- APP SECTIONS -->
-<div id="app" style="display:none;">
+<!-- ============================= -->
+<!-- MAIN APP -->
+<!-- ============================= -->
+<div id="main-app" style="display:none;">
+
+    <!-- TOPBAR -->
     <div class="topbar">
-        <h2>LIFE-ADMIN</h2>
-        <span id="user-display"></span>
+        <span id="topbar-username"></span>
     </div>
 
-    <div class="navbar">
-        <div class="nav-item active" data-section="reminders">Reminders</div>
-        <div class="nav-item" data-section="bills">Bills</div>
-        <div class="nav-item" data-section="expenses">Expenses</div>
-        <div class="nav-item" data-section="tax">Tax</div>
-        <div class="nav-item" data-section="profile">Profile</div>
-        <div class="nav-item" data-section="chat">AI Chat</div>
+    <!-- SECTIONS -->
+    <div id="home" class="section">
+        <h2>Home</h2>
+        <p>Welcome! Use the bottom navigation to explore.</p>
     </div>
 
-    <!-- Reminders -->
-    <div class="section" id="reminders">
-        <h2>Reminders</h2>
-        <input type="text" id="reminder-title" placeholder="Title">
-        <input type="datetime-local" id="reminder-time">
-        <textarea id="reminder-note" placeholder="Notes / what to do"></textarea>
-        <button id="add-reminder">Add Reminder</button>
-        <button id="clear-reminders">Clear All</button>
-        <ul id="reminder-list"></ul>
-    </div>
-
-    <!-- Bills -->
-    <div class="section" id="bills">
+    <div id="bills" class="section">
         <h2>Bills</h2>
-        <input type="text" id="bill-title" placeholder="Bill name">
+        <input type="text" id="bill-name" placeholder="Bill Name">
         <input type="number" id="bill-amount" placeholder="Amount">
         <input type="date" id="bill-date">
-        <button id="add-bill">Add Bill</button>
-        <button id="clear-bills">Clear All</button>
-        <ul id="bill-list"></ul>
+        <button onclick="addBill()">Add Bill</button>
+        <ul id="bills-list"></ul>
     </div>
 
-    <!-- Expenses -->
-    <div class="section" id="expenses">
+    <div id="expenses" class="section">
         <h2>Expenses</h2>
-        <input type="text" id="expense-title" placeholder="Expense name">
+        <input type="text" id="expense-name" placeholder="Expense Name">
         <input type="number" id="expense-amount" placeholder="Amount">
-        <button id="add-expense">Add Expense</button>
-        <button id="clear-expenses">Clear All</button>
-        <ul id="expense-list"></ul>
+        <button onclick="addExpense()">Add Expense</button>
+        <ul id="expenses-list"></ul>
     </div>
 
-    <!-- Tax -->
-    <div class="section" id="tax">
+    <div id="reminders" class="section">
+        <h2>Reminders</h2>
+        <input type="text" id="reminder-title" placeholder="Reminder Title">
+        <input type="datetime-local" id="reminder-date">
+        <button onclick="addReminder()">Set Reminder</button>
+        <button onclick="clearReminders()">Clear All</button>
+        <ul id="reminders-list"></ul>
+    </div>
+
+    <div id="tax" class="section">
         <h2>Tax Calculator (SA 2025/26)</h2>
-        <input type="number" id="annual-salary" placeholder="Annual Salary">
-        <input type="number" id="pension" placeholder="Pension Contribution">
-        <input type="number" id="retirement" placeholder="Retirement Annuity">
-        <input type="number" id="medical-members" placeholder="Medical Aid Members">
-        <button id="calculate-tax-btn">Calculate Tax</button>
-        <button id="clear-tax-btn">Clear</button>
-        <div id="tax-result"></div>
+        <input type="number" id="tax-salary" placeholder="Annual Salary">
+        <input type="number" id="tax-age" placeholder="Age">
+        <input type="number" id="tax-pension" placeholder="Pension Contribution">
+        <input type="number" id="tax-retirement" placeholder="Retirement Annuity">
+        <input type="number" id="tax-medical" placeholder="Medical Aid Members">
+        <button onclick="runTaxCalculation()">Calculate Tax</button>
+        <div id="tax-output" style="margin-top:15px;"></div>
     </div>
 
-    <!-- Profile -->
-    <div class="section" id="profile">
+    <div id="profile" class="section">
         <h2>Profile</h2>
         <div class="profile-container">
             <div class="profile-avatar"></div>
             <div class="profile-name" id="profile-name-display"></div>
-            <div class="profile-bio" id="profile-bio-display">Your bio here</div>
+            <div class="profile-bio" id="profile-bio-display">This is your bio</div>
         </div>
     </div>
 
-    <!-- AI Chat -->
-    <div class="section" id="chat">
+    <div id="chat" class="section">
         <h2>AI Chat</h2>
         <div id="chat-box"></div>
-        <input type="text" id="chat-input" placeholder="Type a message...">
-        <button id="send-chat">Send</button>
+        <input type="text" id="chat-input" placeholder="Type a message">
+        <button id="chat-send">Send</button>
+    </div>
+
+    <!-- BOTTOM NAVBAR -->
+    <div class="navbar">
+        <div class="nav-item" data-target="home" onclick="showSection('home')">Home</div>
+        <div class="nav-item" data-target="bills" onclick="showSection('bills')">Bills</div>
+        <div class="nav-item" data-target="expenses" onclick="showSection('expenses')">Expenses</div>
+        <div class="nav-item" data-target="reminders" onclick="showSection('reminders')">Reminders</div>
+        <div class="nav-item" data-target="tax" onclick="showSection('tax')">Tax</div>
+        <div class="nav-item" data-target="profile" onclick="showSection('profile')">Profile</div>
+        <div class="nav-item" data-target="chat" onclick="showSection('chat')">AI Chat</div>
     </div>
 
 </div>
