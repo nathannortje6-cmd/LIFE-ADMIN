@@ -1,306 +1,302 @@
-// -------------------- GLOBAL --------------------
-let currentUser = null;
+// GLOBAL
 const usersKey = 'lifeadmin-users';
-if(!localStorage.getItem(usersKey)) localStorage.setItem(usersKey, JSON.stringify({}));
+if (!localStorage.getItem(usersKey)) localStorage.setItem(usersKey, JSON.stringify({}));
+let currentUser = null;
 
-// -------------------- LOGIN --------------------
-const loginScreen = document.getElementById('login-screen');
-const appContainer = document.getElementById('app-container');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
+// LOGIN
 const loginBtn = document.getElementById('loginBtn');
+loginBtn.addEventListener('click', loginHandler);
 
-loginBtn.addEventListener('click', ()=>{
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    if(!username||!password){ alert("Enter username & password"); return; }
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    if(!users[username]) users[username] = {password, reminders:[], bills:[], expenses:[], profile:{bio:'',pic:''}, tax:{}};
-    else if(users[username].password!==password){ alert("Wrong password"); return; }
-    currentUser = username;
-    showApp();
-});
-
-// -------------------- SHOW APP --------------------
-function showApp(){
-    loginScreen.classList.add('hidden');
-    appContainer.classList.remove('hidden');
-    loadProfile();
-    loadReminders();
-    loadBills();
-    loadExpenses();
+function loginHandler(){
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value.trim();
+  if (!u || !p) { alert("Enter username & password"); return; }
+  let users = JSON.parse(localStorage.getItem(usersKey));
+  if (!users[u]) {
+    users[u] = { password: p, reminders: [], bills: [], expenses: [], profile: { bio:'', pic:'' }, tax: {} };
+  } else if (users[u].password !== p) {
+    alert("Wrong password"); return;
+  }
+  localStorage.setItem(usersKey, JSON.stringify(users));
+  currentUser = u;
+  showApp();
 }
 
-// -------------------- SIDEBAR --------------------
+function showApp(){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-container').classList.remove('hidden');
+  loadProfile();
+  loadReminders();
+  loadBills();
+  loadExpenses();
+  goToPage('reminders-page');
+}
+
+// NAVIGATION
 const sidebarItems = document.querySelectorAll('.sidebar-item');
-const pages = document.querySelectorAll('.page');
-sidebarItems.forEach(item=>{
-    item.addEventListener('click',()=>{
-        sidebarItems.forEach(i=>i.classList.remove('active'));
-        item.classList.add('active');
-        pages.forEach(p=>p.classList.add('hidden'));
-        const page = item.dataset.page;
-        document.getElementById(page).classList.remove('hidden');
-    });
+sidebarItems.forEach(it => it.addEventListener('click', ()=> {
+  sidebarItems.forEach(i=>i.classList.remove('active'));
+  it.classList.add('active');
+  goToPage(it.dataset.page);
+}));
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  location.reload();
 });
-document.getElementById('logoutBtn').addEventListener('click',()=>{
-    currentUser=null;
-    appContainer.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-});
+
+function goToPage(pageId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  const pg = document.getElementById(pageId);
+  if (pg) pg.classList.remove('hidden');
+}
 
 // -------------------- REMINDERS --------------------
 const reminderModal = document.getElementById('reminder-modal');
-const addReminderBtn = document.getElementById('add-reminder-btn');
-const closeReminderBtn = document.getElementById('close-reminder');
-const saveReminderBtn = document.getElementById('save-reminder');
-
-addReminderBtn.addEventListener('click', ()=>reminderModal.classList.remove('hidden'));
-closeReminderBtn.addEventListener('click', ()=>reminderModal.classList.add('hidden'));
-
-saveReminderBtn.addEventListener('click', ()=>{
-    const title = document.getElementById('reminder-title').value.trim();
-    const date = document.getElementById('reminder-date').value;
-    const time = document.getElementById('reminder-time').value;
-    const reason = document.getElementById('reminder-reason').value.trim();
-    const instruction = document.getElementById('reminder-instruction').value.trim();
-    if(!title||!date||!time){ alert("Fill title/date/time"); return; }
-
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    const reminder = {title,date,time,reason,instruction};
-    users[currentUser].reminders.push(reminder);
-    localStorage.setItem(usersKey, JSON.stringify(users));
-
-    reminderModal.classList.add('hidden');
-    document.getElementById('reminder-title').value='';
-    document.getElementById('reminder-date').value='';
-    document.getElementById('reminder-time').value='';
-    document.getElementById('reminder-reason').value='';
-    document.getElementById('reminder-instruction').value='';
-
-    loadReminders();
-    scheduleReminderNotification(reminder);
+document.getElementById('add-reminder-btn').addEventListener('click', ()=>reminderModal.classList.remove('hidden'));
+document.getElementById('close-reminder').addEventListener('click', ()=>reminderModal.classList.add('hidden'));
+document.getElementById('save-reminder').addEventListener('click', ()=>{
+  const t = document.getElementById('reminder-title').value.trim();
+  const d = document.getElementById('reminder-date').value;
+  const ti= document.getElementById('reminder-time').value;
+  const r = document.getElementById('reminder-reason').value.trim();
+  const ins = document.getElementById('reminder-instruction').value.trim();
+  if (!t || !d || !ti) { alert("Fill title, date, time"); return; }
+  let users = JSON.parse(localStorage.getItem(usersKey));
+  users[currentUser].reminders.push({ title: t, date: d, time: ti, reason: r, instruction: ins });
+  localStorage.setItem(usersKey, JSON.stringify(users));
+  reminderModal.classList.add('hidden');
+  loadReminders();
+  scheduleReminderNotifications({title:t, date:d, time:ti});
 });
-
 function loadReminders(){
-    const reminderList = document.getElementById('reminder-list');
-    reminderList.innerHTML='';
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].reminders.forEach((r,i)=>{
-        const li = document.createElement('li');
-        li.innerHTML=`<div>${r.title} | ${r.date} ${r.time} | ${r.reason} | ${r.instruction}</div>`;
-        const delBtn = document.createElement('div'); delBtn.textContent='Delete'; delBtn.classList.add('delete-btn');
-        delBtn.addEventListener('click', ()=>{
-            users[currentUser].reminders.splice(i,1);
-            localStorage.setItem(usersKey,JSON.stringify(users));
-            loadReminders();
-        });
-        li.appendChild(delBtn);
-        reminderList.appendChild(li);
-    });
-}
-
-// -------------------- REMINDER NOTIFICATIONS --------------------
-function scheduleReminderNotification(reminder){
-    const notifTimes=[{minBefore:1440},{minBefore:120},{minBefore:1}];
-    notifTimes.forEach(n=>{
-        const reminderDateTime=new Date(reminder.date+'T'+reminder.time);
-        const notifyTime = reminderDateTime.getTime()-n.minBefore*60000;
-        const delay = notifyTime-Date.now();
-        if(delay>0){
-            setTimeout(()=>{ if(Notification.permission==="granted") new Notification("Reminder: "+reminder.title); }, delay);
-        }
-    });
-}
-if(Notification.permission!=="granted") Notification.requestPermission();
-
-// -------------------- PROFILE --------------------
-const profilePicInput=document.getElementById('profile-pic');
-const profilePreview=document.getElementById('profile-preview');
-const bioInput=document.getElementById('bio');
-
-profilePicInput.addEventListener('change', ()=>{
-    const file=profilePicInput.files[0];
-    const reader=new FileReader();
-    reader.onload=()=>{
-        profilePreview.src=reader.result;
-        let users = JSON.parse(localStorage.getItem(usersKey));
-        users[currentUser].profile.pic=reader.result;
-        localStorage.setItem(usersKey,JSON.stringify(users));
+  const ul = document.getElementById('reminder-list');
+  ul.innerHTML = '';
+  let u = JSON.parse(localStorage.getItem(usersKey))[currentUser];
+  u.reminders.forEach((r,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div>${r.title} | ${r.date} ${r.time} | ${r.reason}</div>`;
+    const del = document.createElement('div'); del.textContent='Delete'; del.classList.add('delete-btn');
+    del.onclick = ()=>{
+      u.reminders.splice(i,1);
+      localStorage.setItem(usersKey, JSON.stringify(JSON.parse(localStorage.getItem(usersKey))));
+      loadReminders();
     };
-    if(file) reader.readAsDataURL(file);
-});
-bioInput.addEventListener('input', ()=>{
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].profile.bio=bioInput.value;
-    localStorage.setItem(usersKey,JSON.stringify(users));
-});
-function loadProfile(){
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    bioInput.value=users[currentUser].profile.bio;
-    profilePreview.src=users[currentUser].profile.pic||'';
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
 }
+function scheduleReminderNotifications(rem){
+  const times = [1440, 120, 1, 0];
+  times.forEach(mb => {
+    const dt = new Date(rem.date+'T'+rem.time).getTime() - mb*60000;
+    const now = Date.now();
+    const delay = dt - now;
+    if (delay > 0) {
+      setTimeout(()=>{ 
+        if (Notification.permission==="granted") 
+          new Notification("Reminder: "+rem.title); 
+      }, delay);
+    }
+  });
+}
+if (Notification.permission !== "granted") Notification.requestPermission();
 
-// -------------------- BILLS --------------------
-const billModal=document.getElementById('bill-modal');
-const addBillBtn=document.getElementById('add-bill-btn');
-const closeBillBtn=document.getElementById('close-bill');
-const saveBillBtn=document.getElementById('save-bill');
-
-addBillBtn.addEventListener('click',()=>billModal.classList.remove('hidden'));
-closeBillBtn.addEventListener('click',()=>billModal.classList.add('hidden'));
-saveBillBtn.addEventListener('click', ()=>{
-    const title=document.getElementById('bill-title').value.trim();
-    const amount=document.getElementById('bill-amount').value;
-    const date=document.getElementById('bill-date').value;
-    const notes=document.getElementById('bill-notes').value.trim();
-    if(!title||!amount||!date){ alert("Fill all fields"); return; }
-
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    const bill={title,amount,date,notes};
-    users[currentUser].bills.push(bill);
-    localStorage.setItem(usersKey,JSON.stringify(users));
-
-    billModal.classList.add('hidden');
-    document.getElementById('bill-title').value='';
-    document.getElementById('bill-amount').value='';
-    document.getElementById('bill-date').value='';
-    document.getElementById('bill-notes').value='';
-
-    loadBills();
-    addExpense(bill.title,bill.amount);
-    scheduleBillNotification(bill);
-});
-
+// -------------------- BILLS & EXPENSES --------------------
+const billModal = document.getElementById('bill-modal');
+document.getElementById('add-bill-btn').onclick = ()=>billModal.classList.remove('hidden');
+document.getElementById('close-bill').onclick = ()=>billModal.classList.add('hidden');
+document.getElementById('save-bill').onclick = ()=>{
+  const t = document.getElementById('bill-title').value.trim();
+  const a = parseFloat(document.getElementById('bill-amount').value);
+  const d = document.getElementById('bill-date').value;
+  const n = document.getElementById('bill-notes').value.trim();
+  if (!t || !a || !d) { alert("Fill fields"); return; }
+  let users = JSON.parse(localStorage.getItem(usersKey));
+  const bill = {title:t, amount:a, date:d, notes:n};
+  users[currentUser].bills.push(bill);
+  users[currentUser].expenses.push({title:t, amount:a, type:'bill'});
+  localStorage.setItem(usersKey, JSON.stringify(users));
+  billModal.classList.add('hidden');
+  loadBills(); loadExpenses();
+  scheduleBillNotifications(bill);
+};
 function loadBills(){
-    const billList = document.getElementById('bill-list');
-    billList.innerHTML='';
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].bills.forEach((b,i)=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<div>${b.title} | R${b.amount} | ${b.date} | ${b.notes}</div>`;
-        const delBtn=document.createElement('div'); delBtn.textContent='Delete'; delBtn.classList.add('delete-btn');
-        delBtn.addEventListener('click',()=>{
-            users[currentUser].bills.splice(i,1);
-            localStorage.setItem(usersKey,JSON.stringify(users));
-            loadBills();
-            loadExpenses();
-        });
-        li.appendChild(delBtn);
-        billList.appendChild(li);
-    });
+  const ul = document.getElementById('bill-list');
+  ul.innerHTML = '';
+  let u = JSON.parse(localStorage.getItem(usersKey))[currentUser];
+  u.bills.forEach((b,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div>${b.title} | R${b.amount} | Due: ${b.date}</div>`;
+    const del = document.createElement('div'); del.textContent='Delete'; del.classList.add('delete-btn');
+    del.onclick = ()=>{
+      u.bills.splice(i,1);
+      localStorage.setItem(usersKey, JSON.stringify(JSON.parse(localStorage.getItem(usersKey))));
+      loadBills(); loadExpenses();
+    };
+    li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
+function scheduleBillNotifications(b){
+  const times = [1440, 120, 1, 0];
+  times.forEach(mb=>{
+    const dt = new Date(b.date+'T00:00').getTime() - mb*60000;
+    const now = Date.now();
+    const delay = dt - now;
+    if(delay>0){
+      setTimeout(()=>{ 
+        if(Notification.permission==="granted") 
+          new Notification("Bill Due: "+b.title+" R"+b.amount); 
+      }, delay);
+    }
+  });
 }
 
-// -------------------- BILL NOTIFICATIONS --------------------
-function scheduleBillNotification(bill){
-    const notifTimes=[{minBefore:1440},{minBefore:120},{minBefore:1},{minBefore:0}];
-    notifTimes.forEach(n=>{
-        const billDateTime=new Date(bill.date+'T00:00');
-        const notifyTime = billDateTime.getTime()-n.minBefore*60000;
-        const delay = notifyTime-Date.now();
-        if(delay>0){
-            setTimeout(()=>{ if(Notification.permission==="granted") new Notification("Bill Reminder: "+bill.title+" R"+bill.amount); }, delay);
-        }
-    });
-}
-
-// -------------------- EXPENSES --------------------
-const expenseModal=document.getElementById('expense-modal');
-const addExpenseBtn=document.getElementById('add-expense-btn');
-const closeExpenseBtn=document.getElementById('close-expense');
-const saveExpenseBtn=document.getElementById('save-expense');
-
-addExpenseBtn.addEventListener('click',()=>expenseModal.classList.remove('hidden'));
-closeExpenseBtn.addEventListener('click',()=>expenseModal.classList.add('hidden'));
-saveExpenseBtn.addEventListener('click', ()=>{
-    const title=document.getElementById('expense-title').value.trim();
-    const amount=document.getElementById('expense-amount').value;
-    if(!title||!amount){ alert("Fill fields"); return; }
-    addExpense(title,amount);
-    expenseModal.classList.add('hidden');
-    document.getElementById('expense-title').value='';
-    document.getElementById('expense-amount').value='';
-    loadExpenses();
-});
-
-function addExpense(title,amount){
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].expenses.push({title,amount});
-    localStorage.setItem(usersKey,JSON.stringify(users));
-}
-
+const expenseModal = document.getElementById('expense-modal');
+document.getElementById('add-expense-btn').onclick = ()=>expenseModal.classList.remove('hidden');
+document.getElementById('close-expense').onclick = ()=>expenseModal.classList.add('hidden');
+document.getElementById('save-expense').onclick = ()=>{
+  const t = document.getElementById('expense-title').value.trim();
+  const a = parseFloat(document.getElementById('expense-amount').value);
+  if(!t || !a){ alert("Fill fields"); return; }
+  let users = JSON.parse(localStorage.getItem(usersKey));
+  users[currentUser].expenses.push({title:t, amount:a, type:'manual'});
+  localStorage.setItem(usersKey, JSON.stringify(users));
+  expenseModal.classList.add('hidden');
+  loadExpenses();
+};
 function loadExpenses(){
-    const expenseList=document.getElementById('expense-list');
-    expenseList.innerHTML='';
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    let total=0;
-    users[currentUser].expenses.forEach((e,i)=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<div>${e.title} | R${e.amount}</div>`;
-        const delBtn=document.createElement('div'); delBtn.textContent='Delete'; delBtn.classList.add('delete-btn');
-        delBtn.addEventListener('click',()=>{
-            users[currentUser].expenses.splice(i,1);
-            localStorage.setItem(usersKey,JSON.stringify(users));
-            loadExpenses();
-        });
-        li.appendChild(delBtn);
-        expenseList.appendChild(li);
-        total+=parseFloat(e.amount);
-    });
-    const totalLi=document.createElement('li');
-    totalLi.innerHTML=`<strong>Total Expenses: R${total}</strong>`;
-    expenseList.appendChild(totalLi);
+  const ul = document.getElementById('expense-list');
+  ul.innerHTML = '';
+  let u = JSON.parse(localStorage.getItem(usersKey))[currentUser];
+  let total = 0;
+  u.expenses.forEach((e,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div>${e.title} | R${e.amount}</div>`;
+    const del = document.createElement('div'); del.textContent='Delete'; del.classList.add('delete-btn');
+    del.onclick = ()=>{
+      u.expenses.splice(i,1);
+      localStorage.setItem(usersKey, JSON.stringify(JSON.parse(localStorage.getItem(usersKey))));
+      loadExpenses();
+    };
+    li.appendChild(del);
+    ul.appendChild(li);
+    total += parseFloat(e.amount);
+  });
+  const totli = document.createElement('li');
+  totli.innerHTML = `<strong>Total Expenses: R${total.toFixed(2)}</strong>`;
+  ul.appendChild(totli);
 }
 
-// -------------------- TAX --------------------
-const calcTaxBtn=document.getElementById('calculate-tax');
-calcTaxBtn.addEventListener('click',()=>{
-    const salary=parseFloat(document.getElementById('tax-salary').value);
-    const dependents=parseInt(document.getElementById('tax-dependents').value)||0;
-    const deductions=parseFloat(document.getElementById('tax-deductions').value)||0;
-    if(!salary){ alert("Enter salary"); return; }
-    let taxable = salary*12 - deductions - (dependents*50000);
-    if(taxable<0) taxable=0;
-    let taxYear = taxable*0.18; // Simple SA approx 18%
-    let taxMonth = taxYear/12;
-    document.getElementById('tax-result').innerHTML=`Estimated Monthly Tax: R${taxMonth.toFixed(2)} <br> Yearly Tax: R${taxYear.toFixed(2)}`;
-    let users = JSON.parse(localStorage.getItem(usersKey));
-    users[currentUser].tax={salary,dependents,deductions,taxMonth,taxYear};
-    localStorage.setItem(usersKey,JSON.stringify(users));
-});
+// -------------------- TAX CALCULATOR --------------------
+document.getElementById('calculate-tax').onclick = calculateTaxDetailed;
 
-// -------------------- CHAT --------------------
-const chatMessages=document.getElementById('chat-messages');
-const chatText=document.getElementById('chat-text');
-const sendChatBtn=document.getElementById('send-chat');
+function calculateTaxDetailed(){
+  const sal = parseFloat(document.getElementById('tax-salary').value) || 0;
+  const bonuses = parseFloat(document.getElementById('tax-bonuses').value) || 0;
+  const pension = parseFloat(document.getElementById('tax-pension').value) || 0;
+  const medical = parseFloat(document.getElementById('tax-medical').value) || 0;
+  const other = parseFloat(document.getElementById('tax-otherded').value) || 0;
+  const deps = parseInt(document.getElementById('tax-dependents').value) || 0;
 
-sendChatBtn.addEventListener('click',sendMessage);
-chatText.addEventListener('keypress',(e)=>{ if(e.key==='Enter') sendMessage(); });
+  const grossAnnual = sal*12 + bonuses;
+  const deductionTotal = pension + medical + other + (deps * 50000);
+  let taxable = grossAnnual - deductionTotal;
+  if(taxable<0) taxable=0;
 
-function sendMessage(){
-    const msg=chatText.value.trim();
-    if(!msg) return;
-    addChatBubble(msg,'user');
-    chatText.value='';
-    setTimeout(()=>{ aiResponse(msg); },500);
+  // SARS 2025/26 approx brackets
+  const brackets = [
+    { limit: 237100, rate: 0.18, base: 0 },
+    { limit: 370500, rate: 0.26, base: 42678 },
+    { limit: 512800, rate: 0.31, base: 77362 },
+    { limit: 673000, rate: 0.36, base: 121475 },
+    { limit: 857900, rate: 0.39, base: 179147 },
+    { limit: 1817000, rate: 0.41, base: 251258 },
+    { limit: Infinity, rate: 0.45, base: 644489 }
+  ];
+  let taxPayable = 0;
+  for (let br of brackets){
+    if (taxable <= br.limit){
+      taxPayable = br.base + br.rate * (taxable - (br.limit - (br.limit - (taxable <= br.limit ? (taxable - (br.limit - (br.limit - taxable))) : 0))));
+      break;
+    }
+  }
+  const rebate = 17235;
+  let netAnnualTax = taxPayable - rebate;
+  if(netAnnualTax<0) netAnnualTax=0;
+  const netMonthlyTax = netAnnualTax / 12;
+
+  document.getElementById('tax-result').innerHTML = `
+    <strong>Gross Annual Income:</strong> R${grossAnnual.toFixed(2)}<br>
+    <strong>Total Deductions:</strong> R${deductionTotal.toFixed(2)}<br>
+    <strong>Taxable Income:</strong> R${taxable.toFixed(2)}<br>
+    <strong>Tax before rebate:</strong> R${taxPayable.toFixed(2)}<br>
+    <strong>Rebate:</strong> R${rebate}<br>
+    <hr>
+    <strong>Net Annual Tax:</strong> <span style="color:#00c8ff;">R${netAnnualTax.toFixed(2)}</span><br>
+    <strong>Monthly approx:</strong> <span style="color:#00c8ff;">R${netMonthlyTax.toFixed(2)}</span>
+  `;
+
+  let users = JSON.parse(localStorage.getItem(usersKey));
+  users[currentUser].tax = { grossAnnual, deductionTotal, taxable, netAnnualTax, netMonthlyTax };
+  localStorage.setItem(usersKey, JSON.stringify(users));
 }
 
-function addChatBubble(msg,type){
-    const div=document.createElement('div');
-    div.textContent=msg;
-    div.classList.add('chat-bubble');
-    div.classList.add(type==='user'?'chat-user':'chat-ai');
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop=chatMessages.scrollHeight;
+// -------------------- AI Chat + Commands --------------------
+const sendChatBtn = document.getElementById('send-chat');
+const chatText = document.getElementById('chat-text');
+const chatMessages = document.getElementById('chat-messages');
+
+sendChatBtn.addEventListener('click', handleUserMsg);
+chatText.addEventListener('keypress', e=>{ if(e.key==='Enter') handleUserMsg(); });
+
+function handleUserMsg(){
+  const msg = chatText.value.trim();
+  if(!msg) return;
+  addChat('user', msg);
+  chatText.value = '';
+  setTimeout(()=>processAI(msg.toLowerCase()), 300);
 }
 
-function aiResponse(msg){
-    msg=msg.toLowerCase();
-    let response="I'm here to help!";
-    if(msg.includes('reminder')) response="You can add a reminder using the '+' button in Reminders.";
-    else if(msg.includes('bill')) response="Check the Bills page to manage your bills.";
-    else if(msg.includes('tax')) response="Go to Taxes page to calculate your tax.";
-    else if(msg.includes('expense')) response="Go to Expenses page to see your expenses.";
-    else response="I can help you organize your life!";
-    addChatBubble(response,'ai');
+function addChat(type, text){
+  const div = document.createElement('div');
+  div.classList.add('chat-bubble', type==='user'?'chat-user':'chat-ai');
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function processAI(msg){
+  // Simple command parsing
+  if(msg.startsWith('go to ')){
+    const page = msg.slice(6).trim() + '-page';
+    const el = document.getElementById(page);
+    if(el){
+      goToPage(page);
+      addChat('ai', `Navigating to ${msg.slice(6).trim()} page.`);
+      return;
+    }
+  }
+  if(msg.startsWith('set reminder')){
+    // Format: set reminder: Buy groceries / 2025-12-10 14:00 / groceries
+    const parts = msg.split('/');
+    if(parts.length >= 3){
+      const title = parts[0].replace('set reminder','').trim();
+      const date = parts[1].trim();
+      const time = parts[2].trim();
+      let users = JSON.parse(localStorage.getItem(usersKey));
+      users[currentUser].reminders.push({ title, date, time, reason:'', instruction:'' });
+      localStorage.setItem(usersKey, JSON.stringify(users));
+      loadReminders();
+      scheduleReminderNotifications({title, date, time});
+      addChat('ai', `Reminder "${title}" set for ${date} ${time}.`);
+      return;
+    }
+  }
+  if(msg.includes('calculate tax')){
+    document.getElementById('calculate-tax').click();
+    addChat('ai', 'Calculating your tax now…');
+    return;
+  }
+  // Default
+  addChat('ai', "I can help you manage bills, reminders, taxes and expenses. Try commands like 'go to bills', 'set reminder ...', or 'calculate tax'.");
 }
