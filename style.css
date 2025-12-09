@@ -1,9 +1,9 @@
 /* GLOBAL RESET */
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Arial',sans-serif; }
-body { background:#0b0b0f; color:#fff; overflow-x:hidden; font-size:16px; }
+body { background:#0b0b0f; color:#fff; font-size:16px; overflow-x:hidden; }
 .hidden { display:none !important; }
 
-/* LOGIN CARD */
+/* LOGIN */
 #login-screen { display:flex; justify-content:center; align-items:center; height:100vh; }
 .login-card { background:rgba(25,25,40,0.95); padding:50px; border-radius:40px; text-align:center; }
 .login-card input { width:80%; padding:12px; margin:8px 0; border-radius:12px; border:1px solid #333; background:#0c0c10; color:#fff; }
@@ -18,13 +18,15 @@ body { background:#0b0b0f; color:#fff; overflow-x:hidden; font-size:16px; }
 /* PAGES */
 #pages-container { flex:1; padding:20px; overflow-y:auto; }
 .page h2 { margin-bottom:15px; }
+button { cursor:pointer; }
 
-/* REMINDERS */
-#reminder-list li { background:#181820; padding:10px; margin:5px 0; border-radius:12px; display:flex; justify-content:space-between; }
-.reminder-delete { cursor:pointer; color:#ff4d4d; }
+/* REMINDERS / BILLS / EXPENSES */
+ul { list-style:none; }
+li { background:#181820; padding:10px; margin:5px 0; border-radius:12px; display:flex; justify-content:space-between; }
+.delete-btn { cursor:pointer; color:#ff4d4d; }
 
 /* CHAT */
-.chat-messages { height:300px; overflow-y:auto; border:1px solid #333; margin-bottom:10px; padding:10px; border-radius:12px; background:#181820; display:flex; flex-direction:column; }
+.chat-messages { height:300px; overflow-y:auto; border:1px solid #333; margin-bottom:10px; padding:10px; border-radius:12px; display:flex; flex-direction:column; }
 .chat-bubble { padding:10px; margin:5px 0; border-radius:12px; max-width:70%; }
 .chat-user { background:#00c8ff; color:#000; align-self:flex-end; }
 .chat-ai { background:#333; color:#fff; align-self:flex-start; }
@@ -37,3 +39,4 @@ textarea { width:100%; padding:10px; border-radius:12px; background:#0c0c10; col
 .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:1000; }
 .modal-content { background:#181820; padding:30px; border-radius:20px; display:flex; flex-direction:column; gap:10px; width:300px; }
 .modal-content button { padding:10px; border-radius:12px; background:#00c8ff; color:#000; cursor:pointer; }
+input, label { width:100%; margin-bottom:8px; }
