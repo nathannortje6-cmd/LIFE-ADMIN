@@ -4,21 +4,26 @@ const loginBtn = document.getElementById('login-btn');
 const loginUsername = document.getElementById('login-username');
 const usernameDisplay = document.getElementById('username-display');
 
-loginBtn.addEventListener('click', () => {
+function login() {
     const username = loginUsername.value.trim();
-    if(username) {
-        localStorage.setItem('username', username);
-        usernameDisplay.textContent = username;
-        loginScreen.style.display = 'none';
-        showSection('reminders-section');
+    if (!username) {
+        alert("Please enter a username!");
+        return;
     }
+    localStorage.setItem('username', username);
+    usernameDisplay.textContent = username;
+    loginScreen.style.display = 'none';
+    showSection('reminders-section');
+}
+loginBtn.addEventListener('click', login);
+loginUsername.addEventListener('keypress', (e) => {
+    if (e.key === "Enter") login();
 });
-
-// Load saved username
 const savedUsername = localStorage.getItem('username');
-if(savedUsername) {
+if (savedUsername) {
     usernameDisplay.textContent = savedUsername;
     loginScreen.style.display = 'none';
+    showSection('reminders-section');
 }
 
 // ===================== NAVIGATION =====================
@@ -47,7 +52,7 @@ function renderReminders() {
     updateStats();
 }
 function deleteReminder(index) {
-    reminders.splice(index,1);
+    reminders.splice(index, 1);
     localStorage.setItem('reminders', JSON.stringify(reminders));
     renderReminders();
 }
@@ -58,35 +63,18 @@ saveReminderBtn.addEventListener('click', () => {
     const date = document.getElementById('reminder-date').value;
     const time = document.getElementById('reminder-time').value;
     const notes = document.getElementById('reminder-notes').value;
-    if(title && date && time){
-        reminders.push({title,date,time,notes});
+    if (title && date && time) {
+        reminders.push({ title, date, time, notes });
         localStorage.setItem('reminders', JSON.stringify(reminders));
         renderReminders();
         reminderModal.classList.add('hidden');
-        document.getElementById('reminder-title').value='';
-        document.getElementById('reminder-date').value='';
-        document.getElementById('reminder-time').value='';
-        document.getElementById('reminder-notes').value='';
+        document.getElementById('reminder-title').value = '';
+        document.getElementById('reminder-date').value = '';
+        document.getElementById('reminder-time').value = '';
+        document.getElementById('reminder-notes').value = '';
     }
 });
 renderReminders();
-
-// Reminder notifications
-setInterval(()=>{
-    const now = new Date();
-    reminders.forEach(rem=>{
-        const remDate = new Date(`${rem.date}T${rem.time}`);
-        const diff = remDate - now;
-        if(diff>0 && diff<60000 && !rem.notified1min){
-            alert(`Reminder: ${rem.title} in 1 minute`);
-            rem.notified1min = true;
-        } else if(diff>0 && diff<86400000 && !rem.notified1day){
-            rem.notified1day = true; // could schedule better
-        } else if(diff>0 && diff<7200000 && !rem.notified2hr){
-            rem.notified2hr = true;
-        }
-    });
-}, 30000);
 
 // ===================== BILLS =====================
 let bills = JSON.parse(localStorage.getItem('bills')) || [];
@@ -97,8 +85,8 @@ const saveBillBtn = document.getElementById('save-bill');
 const closeBillBtn = document.getElementById('close-bill');
 
 function renderBills() {
-    billList.innerHTML='';
-    bills.forEach((bill,index)=>{
+    billList.innerHTML = '';
+    bills.forEach((bill, index) => {
         const li = document.createElement('li');
         li.innerHTML = `<span>${bill.title} - $${bill.amount} - ${bill.date}</span>
                         <span class="delete-btn" onclick="deleteBill(${index})">X</span>`;
@@ -106,27 +94,27 @@ function renderBills() {
     });
     updateStats();
 }
-function deleteBill(index){
-    bills.splice(index,1);
-    localStorage.setItem('bills',JSON.stringify(bills));
+function deleteBill(index) {
+    bills.splice(index, 1);
+    localStorage.setItem('bills', JSON.stringify(bills));
     renderBills();
 }
-addBillBtn.addEventListener('click',()=> billModal.classList.remove('hidden'));
-closeBillBtn.addEventListener('click',()=> billModal.classList.add('hidden'));
-saveBillBtn.addEventListener('click',()=>{
-    const title=document.getElementById('bill-title').value;
-    const amount=document.getElementById('bill-amount').value;
-    const date=document.getElementById('bill-date').value;
-    const notes=document.getElementById('bill-notes').value;
-    if(title && amount && date){
-        bills.push({title,amount,date,notes});
-        localStorage.setItem('bills',JSON.stringify(bills));
+addBillBtn.addEventListener('click', () => billModal.classList.remove('hidden'));
+closeBillBtn.addEventListener('click', () => billModal.classList.add('hidden'));
+saveBillBtn.addEventListener('click', () => {
+    const title = document.getElementById('bill-title').value;
+    const amount = document.getElementById('bill-amount').value;
+    const date = document.getElementById('bill-date').value;
+    const notes = document.getElementById('bill-notes').value;
+    if (title && amount && date) {
+        bills.push({ title, amount, date, notes });
+        localStorage.setItem('bills', JSON.stringify(bills));
         renderBills();
         billModal.classList.add('hidden');
-        document.getElementById('bill-title').value='';
-        document.getElementById('bill-amount').value='';
-        document.getElementById('bill-date').value='';
-        document.getElementById('bill-notes').value='';
+        document.getElementById('bill-title').value = '';
+        document.getElementById('bill-amount').value = '';
+        document.getElementById('bill-date').value = '';
+        document.getElementById('bill-notes').value = '';
     }
 });
 renderBills();
@@ -139,113 +127,113 @@ const expenseModal = document.getElementById('expense-modal');
 const saveExpenseBtn = document.getElementById('save-expense');
 const closeExpenseBtn = document.getElementById('close-expense');
 
-function renderExpenses(){
-    expenseList.innerHTML='';
-    expenses.forEach((exp,index)=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<span>${exp.title} - $${exp.amount}</span>
-                      <span class="delete-btn" onclick="deleteExpense(${index})">X</span>`;
+function renderExpenses() {
+    expenseList.innerHTML = '';
+    expenses.forEach((exp, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${exp.title} - $${exp.amount}</span>
+                        <span class="delete-btn" onclick="deleteExpense(${index})">X</span>`;
         expenseList.appendChild(li);
     });
     updateStats();
 }
-function deleteExpense(index){
-    expenses.splice(index,1);
-    localStorage.setItem('expenses',JSON.stringify(expenses));
+function deleteExpense(index) {
+    expenses.splice(index, 1);
+    localStorage.setItem('expenses', JSON.stringify(expenses));
     renderExpenses();
 }
-addExpenseBtn.addEventListener('click',()=> expenseModal.classList.remove('hidden'));
-closeExpenseBtn.addEventListener('click',()=> expenseModal.classList.add('hidden'));
-saveExpenseBtn.addEventListener('click',()=>{
-    const title=document.getElementById('expense-title').value;
-    const amount=document.getElementById('expense-amount').value;
-    if(title && amount){
-        expenses.push({title,amount});
-        localStorage.setItem('expenses',JSON.stringify(expenses));
+addExpenseBtn.addEventListener('click', () => expenseModal.classList.remove('hidden'));
+closeExpenseBtn.addEventListener('click', () => expenseModal.classList.add('hidden'));
+saveExpenseBtn.addEventListener('click', () => {
+    const title = document.getElementById('expense-title').value;
+    const amount = document.getElementById('expense-amount').value;
+    if (title && amount) {
+        expenses.push({ title, amount });
+        localStorage.setItem('expenses', JSON.stringify(expenses));
         renderExpenses();
         expenseModal.classList.add('hidden');
-        document.getElementById('expense-title').value='';
-        document.getElementById('expense-amount').value='';
+        document.getElementById('expense-title').value = '';
+        document.getElementById('expense-amount').value = '';
     }
 });
 renderExpenses();
 
 // ===================== PROFILE =====================
-const profileName=document.getElementById('profile-name');
-const profileBio=document.getElementById('profile-bio');
-const editProfileBtn=document.getElementById('edit-profile-btn');
+const profileName = document.getElementById('profile-name');
+const profileBio = document.getElementById('profile-bio');
+const editProfileBtn = document.getElementById('edit-profile-btn');
 
-function updateStats(){
-    document.getElementById('stat-reminders').textContent=`Reminders: ${reminders.length}`;
-    document.getElementById('stat-bills').textContent=`Bills: ${bills.length}`;
-    document.getElementById('stat-expenses').textContent=`Expenses: ${expenses.length}`;
+function updateStats() {
+    document.getElementById('stat-reminders').textContent = `Reminders: ${reminders.length}`;
+    document.getElementById('stat-bills').textContent = `Bills: ${bills.length}`;
+    document.getElementById('stat-expenses').textContent = `Expenses: ${expenses.length}`;
 }
 updateStats();
 
-editProfileBtn.addEventListener('click',()=>{
-    const name=prompt("Enter your name:",profileName.textContent);
-    const bio=prompt("Enter your bio:",profileBio.textContent);
-    if(name) profileName.textContent=name;
-    if(bio) profileBio.textContent=bio;
+editProfileBtn.addEventListener('click', () => {
+    const name = prompt("Enter your name:", profileName.textContent);
+    const bio = prompt("Enter your bio:", profileBio.textContent);
+    if (name) profileName.textContent = name;
+    if (bio) profileBio.textContent = bio;
 });
 
 // ===================== TAX =====================
-const calculateTaxBtn=document.getElementById('calculate-tax-btn');
-calculateTaxBtn.addEventListener('click',()=>{
-    const income=Number(document.getElementById('income').value)||0;
-    const deductions=Number(document.getElementById('deductions').value)||0;
-    const dependents=Number(document.getElementById('dependents').value)||0;
-    const other=Number(document.getElementById('other-deductions').value)||0;
-    const dependentDeduction=16000; // example SARS approx
-    const taxable=income - deductions - (dependents*dependentDeduction) - other;
-    const tax = taxable*0.18; // simple flat 18% for demo
-    document.getElementById('tax-summary').textContent=`Taxable Income: $${taxable.toFixed(2)} | Total Tax: $${tax.toFixed(2)}`;
-    document.getElementById('tax-calculation').textContent=`Calculation: (${income} - ${deductions} - (${dependents}*${dependentDeduction}) - ${other}) * 0.18`;
+const calculateTaxBtn = document.getElementById('calculate-tax-btn');
+calculateTaxBtn.addEventListener('click', () => {
+    const income = Number(document.getElementById('income').value) || 0;
+    const deductions = Number(document.getElementById('deductions').value) || 0;
+    const dependents = Number(document.getElementById('dependents').value) || 0;
+    const other = Number(document.getElementById('other-deductions').value) || 0;
+    const dependentDeduction = 16000;
+    const taxable = income - deductions - (dependents * dependentDeduction) - other;
+    const tax = taxable * 0.18; // flat 18% for demo
+    document.getElementById('tax-summary').textContent = `Taxable Income: $${taxable.toFixed(2)} | Total Tax: $${tax.toFixed(2)}`;
+    document.getElementById('tax-calculation').textContent = `Calculation: (${income} - ${deductions} - (${dependents}*${dependentDeduction}) - ${other}) * 0.18`;
     document.getElementById('tax-results').classList.remove('hidden');
 });
 
 // ===================== AI CHAT =====================
-const chatBox=document.getElementById('chat-box');
-const chatInput=document.getElementById('chat-input');
-const chatSend=document.getElementById('chat-send');
+const chatBox = document.getElementById('chat-box');
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('chat-send');
 
-const responses={
-    "hi":["Hi! How are you?","Hello!"],
-    "how are you":["I'm fine, thanks! How about you?"],
-    "what is my name":["Your name is "+(savedUsername||"User")],
-    "open reminders":["showSection('reminders-section')"],
-    "open bills":["showSection('bills-section')"],
-    "open expenses":["showSection('expenses-section')"],
-    "open tax":["showSection('tax-section')"],
-    "open profile":["showSection('profile-section')"]
+const responses = {
+    "hi": ["Hi! How are you?", "Hello!"],
+    "how are you": ["I'm fine, thanks! How about you?", "Doing great!"],
+    "what is my name": ["Your name is " + (savedUsername || "User")],
+    "open reminders": ["showSection('reminders-section')"],
+    "open bills": ["showSection('bills-section')"],
+    "open expenses": ["showSection('expenses-section')"],
+    "open tax": ["showSection('tax-section')"],
+    "open profile": ["showSection('profile-section')"]
 };
 
-function addChatMessage(text, sender){
-    const div=document.createElement('div');
-    div.classList.add('chat-msg',sender);
-    div.textContent=text;
+function addChatMessage(text, sender) {
+    const div = document.createElement('div');
+    div.classList.add('chat-msg', sender);
+    div.textContent = text;
     chatBox.appendChild(div);
-    chatBox.scrollTop=chatBox.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-chatSend.addEventListener('click',()=>{
-    const msg=chatInput.value.trim();
-    if(!msg) return;
-    addChatMessage(msg,'user');
-    let response="I don't understand that yet!";
-    const key=msg.toLowerCase();
-    if(responses[key]){
-        if(responses[key][0].startsWith("showSection")) {
+chatSend.addEventListener('click', () => {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    addChatMessage(msg, 'user');
+    let response = "I don't understand that yet!";
+    const key = msg.toLowerCase();
+    if (responses[key]) {
+        if (responses[key][0].startsWith("showSection")) {
             eval(responses[key][0]);
-            response="Opened section!";
+            response = "Opened section!";
         } else {
-            const arr=responses[key];
-            response=arr[Math.floor(Math.random()*arr.length)];
+            const arr = responses[key];
+            response = arr[Math.floor(Math.random() * arr.length)];
         }
     }
-    addChatMessage(response,'ai');
-    chatInput.value='';
+    addChatMessage(response, 'ai');
+    chatInput.value = '';
 });
-chatInput.addEventListener('keypress',(e)=>{
-    if(e.key==='Enter') chatSend.click();
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') chatSend.click();
 });
