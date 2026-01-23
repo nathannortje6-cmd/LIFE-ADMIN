@@ -112,34 +112,66 @@ function clearReminders() {
 }
 
 /* ============================= */
-/* TAX CALCULATOR (OLD WORKING)  */
+/* TAX CALCULATOR (FIXED OLD STYLE) */
 /* ============================= */
 function runTaxCalculation() {
     const salary = Number(document.getElementById('tax-salary').value);
     const age = Number(document.getElementById('tax-age').value);
     const pension = Number(document.getElementById('tax-pension').value);
     const retirement = Number(document.getElementById('tax-retirement').value);
-    const medical = Number(document.getElementById('tax-medical').value);
+    const medicalMembers = Number(document.getElementById('tax-medical').value);
 
-    if (!salary) return alert('Please enter your salary.');
+    if (!salary || salary <= 0) {
+        return alert('Please enter a valid salary.');
+    }
 
-    // Old SA 2025/26 tax logic
-    // For simplicity, using fictional brackets similar to your previous code
     let tax = 0;
-    if (salary <= 237100) tax = salary * 0.18;
-    else if (salary <= 370500) tax = 42678 + (salary - 237100) * 0.26;
-    else if (salary <= 512800) tax = 77362 + (salary - 370500) * 0.31;
-    else if (salary <= 673000) tax = 121910 + (salary - 512800) * 0.36;
-    else if (salary <= 857900) tax = 179532 + (salary - 673000) * 0.39;
-    else if (salary <= 1817000) tax = 251258 + (salary - 857900) * 0.41;
-    else tax = 644489 + (salary - 1817000) * 0.45;
 
-    // Deduct pension, retirement, medical
-    tax -= pension * 0.18 + retirement * 0.18 + medical * 3300 * 0.18;
-    tax = tax < 0 ? 0 : tax;
+    // SA 2025/26 brackets exactly as in old working version
+    if (salary <= 237100) {
+        tax = salary * 0.18;
+    } else if (salary <= 370500) {
+        tax = 42678 + (salary - 237100) * 0.26;
+    } else if (salary <= 512800) {
+        tax = 77362 + (salary - 370500) * 0.31;
+    } else if (salary <= 673000) {
+        tax = 121910 + (salary - 512800) * 0.36;
+    } else if (salary <= 857900) {
+        tax = 179532 + (salary - 673000) * 0.39;
+    } else if (salary <= 1817000) {
+        tax = 251258 + (salary - 857900) * 0.41;
+    } else {
+        tax = 644489 + (salary - 1817000) * 0.45;
+    }
+
+    // Fixed deductions exactly like old version
+    let deduction = 0;
+
+    // Pension contribution deduction (max 27.5% of salary)
+    if (pension) {
+        const pensionDeductible = Math.min(pension, salary * 0.275);
+        deduction += pensionDeductible;
+    }
+
+    // Retirement annuity deduction (max 27.5% of salary)
+    if (retirement) {
+        const retirementDeductible = Math.min(retirement, salary * 0.275);
+        deduction += retirementDeductible;
+    }
+
+    // Medical aid tax credit: R364 per member for 2025/26
+    if (medicalMembers && medicalMembers > 0) {
+        deduction += medicalMembers * 364;
+    }
+
+    // Apply deduction
+    tax -= deduction;
+
+    if (tax < 0) tax = 0;
 
     document.getElementById('tax-output').innerText = `Estimated Tax: R${tax.toFixed(2)}`;
 }
+
 
 /* ============================= */
 /* AI CHAT FUNCTIONALITY         */
