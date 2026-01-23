@@ -1,246 +1,166 @@
-// =============================
-// APP INITIALIZATION
-// =============================
-document.addEventListener("DOMContentLoaded", () => {
-    const loginScreen = document.getElementById("login-screen");
-    const startButton = document.getElementById("start-btn");
-    const usernameInput = document.getElementById("username");
-    const mainApp = document.getElementById("main-app");
-    const topbarUsername = document.getElementById("topbar-username");
+// =====================
+// Life Admin JS
+// =====================
 
-    startButton.addEventListener("click", () => {
-        const username = usernameInput.value.trim();
-        if (!username) return alert("Please enter your name!");
-        topbarUsername.textContent = username;
-        loginScreen.style.display = "none";
-        mainApp.style.display = "block";
-        showSection("home");
-    });
+// ---------------------
+// LOGIN
+// ---------------------
+document.getElementById('start-btn').addEventListener('click', () => {
+    const username = document.getElementById('username').value;
+    if (username) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('topbar-username').innerText = username;
+        document.getElementById('profile-name-display').innerText = username;
+    } else {
+        alert('Please enter your name');
+    }
 });
 
-// =============================
-// SECTION NAVIGATION
-// =============================
-const sections = document.querySelectorAll(".section");
-const navItems = document.querySelectorAll(".nav-item");
-
-function showSection(id) {
-    sections.forEach(sec => sec.style.display = "none");
-    document.getElementById(id).style.display = "block";
-
-    navItems.forEach(nav => nav.classList.remove("active"));
-    document.querySelector(`.nav-item[data-target="${id}"]`)?.classList.add("active");
+// ---------------------
+// SECTION SWITCHING
+// ---------------------
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
 }
 
-// =============================
-// BILLS MANAGEMENT
-// =============================
+// ---------------------
+// TASK STORAGE
+// ---------------------
 let bills = [];
-const billsList = document.getElementById("bills-list");
-
-function addBill() {
-    const name = document.getElementById("bill-name").value.trim();
-    const amount = parseFloat(document.getElementById("bill-amount").value);
-    const dueDate = document.getElementById("bill-date").value;
-
-    if (!name || !amount || !dueDate) return alert("Fill all bill fields!");
-    const bill = { name, amount, dueDate };
-    bills.push(bill);
-    renderBills();
-    alert("Bill added!");
-}
-
-function renderBills() {
-    billsList.innerHTML = "";
-    bills.forEach((b, idx) => {
-        const li = document.createElement("li");
-        li.innerHTML = `${b.name} - R${b.amount} - Due: ${b.dueDate} 
-            <button onclick="deleteBill(${idx})">Delete</button>`;
-        billsList.appendChild(li);
-    });
-}
-
-function deleteBill(idx) {
-    bills.splice(idx, 1);
-    renderBills();
-}
-
-// =============================
-// EXPENSES MANAGEMENT
-// =============================
 let expenses = [];
-const expensesList = document.getElementById("expenses-list");
-
-function addExpense() {
-    const name = document.getElementById("expense-name").value.trim();
-    const amount = parseFloat(document.getElementById("expense-amount").value);
-    if (!name || !amount) return alert("Fill all expense fields!");
-    expenses.push({ name, amount });
-    renderExpenses();
-    alert("Expense added!");
-}
-
-function renderExpenses() {
-    expensesList.innerHTML = "";
-    expenses.forEach((e, idx) => {
-        const li = document.createElement("li");
-        li.innerHTML = `${e.name} - R${e.amount} 
-            <button onclick="deleteExpense(${idx})">Delete</button>`;
-        expensesList.appendChild(li);
-    });
-}
-
-function deleteExpense(idx) {
-    expenses.splice(idx, 1);
-    renderExpenses();
-}
-
-// =============================
-// REMINDERS MANAGEMENT
-// =============================
 let reminders = [];
-const remindersList = document.getElementById("reminders-list");
 
-function addReminder() {
-    const title = document.getElementById("reminder-title").value.trim();
-    const date = document.getElementById("reminder-date").value;
-    if (!title || !date) return alert("Fill all reminder fields!");
-    reminders.push({ title, date });
-    renderReminders();
-    alert("Reminder set!");
-}
-
-function renderReminders() {
-    remindersList.innerHTML = "";
-    reminders.forEach((r, idx) => {
-        const li = document.createElement("li");
-        li.innerHTML = `${r.title} - ${r.date} 
-            <button onclick="deleteReminder(${idx})">Delete</button>`;
-        remindersList.appendChild(li);
+// ---------------------
+// DISPLAY FUNCTIONS
+// ---------------------
+function displayBills() {
+    const list = document.getElementById('bills-list');
+    list.innerHTML = '';
+    bills.forEach(bill => {
+        const li = document.createElement('li');
+        li.innerText = `${bill.title || bill.name} - R${bill.amount || '0'} - Due: ${bill.dueDate || bill.date}`;
+        list.appendChild(li);
     });
 }
 
-function deleteReminder(idx) {
-    reminders.splice(idx, 1);
-    renderReminders();
+function displayExpenses() {
+    const list = document.getElementById('expenses-list');
+    list.innerHTML = '';
+    expenses.forEach(exp => {
+        const li = document.createElement('li');
+        li.innerText = `${exp.title || exp.name} - R${exp.amount || '0'}`;
+        list.appendChild(li);
+    });
+}
+
+function displayReminders() {
+    const list = document.getElementById('reminders-list');
+    list.innerHTML = '';
+    reminders.forEach(rem => {
+        const li = document.createElement('li');
+        li.innerText = `${rem.title} - ${rem.dueDate || rem.date}`;
+        list.appendChild(li);
+    });
 }
 
 function clearReminders() {
     reminders = [];
-    renderReminders();
+    displayReminders();
 }
 
-// =============================
-// TAX CALCULATION - SA 2025/26
-// =============================
-function calculateTaxSA({
-  annualSalary,
-  age = 30,
-  pensionContribution = 0,
-  retirementAnnuity = 0,
-  medicalAidMembers = 1
-}) {
-    const deductions = pensionContribution + retirementAnnuity;
-    let taxableIncome = annualSalary - deductions;
-    if (taxableIncome < 0) taxableIncome = 0;
+// ---------------------
+// TAX CALCULATOR
+// ---------------------
+function runTaxCalculation() {
+    const salary = Number(document.getElementById('tax-salary').value);
+    const age = Number(document.getElementById('tax-age').value);
+    const pension = Number(document.getElementById('tax-pension').value);
+    const retirement = Number(document.getElementById('tax-retirement').value);
+    const medical = Number(document.getElementById('tax-medical').value);
 
-    const brackets = [
-      { threshold: 237100, rate: 0.18, base: 0 },
-      { threshold: 370500, rate: 0.26, base: 42678 },
-      { threshold: 512800, rate: 0.31, base: 77364 },
-      { threshold: 673000, rate: 0.36, base: 121910 },
-      { threshold: 857900, rate: 0.39, base: 179940 },
-      { threshold: 1817000, rate: 0.41, base: 251946 },
-      { threshold: Infinity, rate: 0.45, base: 644704 }
-    ];
+    let taxableIncome = salary - pension - retirement;
 
     let tax = 0;
-    for (let i = 0; i < brackets.length; i++) {
-        if (taxableIncome <= brackets[i].threshold) {
-            tax = brackets[i].base + (taxableIncome - (brackets[i-1]?.threshold || 0)) * brackets[i].rate;
-            break;
-        }
-    }
+    if (taxableIncome <= 237100) tax = taxableIncome * 0.18;
+    else if (taxableIncome <= 370500) tax = 42678 + (taxableIncome - 237100) * 0.26;
+    else if (taxableIncome <= 512800) tax = 77362 + (taxableIncome - 370500) * 0.31;
+    else if (taxableIncome <= 673000) tax = 121475 + (taxableIncome - 512800) * 0.36;
+    else if (taxableIncome <= 857900) tax = 179147 + (taxableIncome - 673000) * 0.39;
+    else if (taxableIncome <= 1817000) tax = 251258 + (taxableIncome - 857900) * 0.41;
+    else tax = 644489 + (taxableIncome - 1817000) * 0.45;
 
-    const primaryRebate = 17478;
-    const secondaryRebate = age >= 65 ? 9594 : 0;
-    const tertiaryRebate = age >= 75 ? 3194 : 0;
-    const totalRebate = primaryRebate + secondaryRebate + tertiaryRebate;
-
-    tax -= totalRebate;
-    if (tax < 0) tax = 0;
-
-    const uif = Math.min(annualSalary, 17712) * 0.01;
-    const netSalary = annualSalary - tax - uif;
-
-    return {
-        taxableIncome,
-        tax: Math.round(tax),
-        uif: Math.round(uif),
-        netSalary: Math.round(netSalary)
-    };
+    document.getElementById('tax-output').innerText = `Estimated Tax: R${tax.toFixed(2)}`;
 }
 
-function runTaxCalculation() {
-    const salary = parseFloat(document.getElementById("tax-salary").value);
-    const age = parseInt(document.getElementById("tax-age").value);
-    const pension = parseFloat(document.getElementById("tax-pension").value) || 0;
-    const retirement = parseFloat(document.getElementById("tax-retirement").value) || 0;
-    const medical = parseInt(document.getElementById("tax-medical").value) || 1;
-
-    const result = calculateTaxSA({
-        annualSalary: salary,
-        age,
-        pensionContribution: pension,
-        retirementAnnuity: retirement,
-        medicalAidMembers: medical
+// ---------------------
+// AI INTEGRATION
+// ---------------------
+async function getAIResponse(message) {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+        },
+        body: JSON.stringify({
+            model: "gpt-4",
+            messages: [
+                { role: "system", content: "You are Life Admin AI assistant. Categorize tasks, suggest reminders, answer admin questions, and parse user input into task objects." },
+                { role: "user", content: message }
+            ],
+            max_tokens: 300
+        })
     });
 
-    const taxOutput = document.getElementById("tax-output");
-    taxOutput.innerHTML = `
-        Taxable Income: R${result.taxableIncome}<br>
-        Tax Owed: R${result.tax}<br>
-        UIF: R${result.uif}<br>
-        Net Salary: R${result.netSalary}
-    `;
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
-// =============================
-// SIMPLE AI CHAT
-// =============================
-const chatBox = document.getElementById("chat-box");
-const chatInput = document.getElementById("chat-input");
+// ---------------------
+// CHAT & TASK PARSING
+// ---------------------
+document.getElementById('chat-send').addEventListener('click', async () => {
+    const input = document.getElementById('chat-input').value;
+    if (!input) return;
 
-const aiResponses = {
-    "hi": "Hi! I can help you manage taxes, bills, expenses, and reminders. Ask me anything!",
-    "how are you": "I'm fine, thank you! How are you?",
-    "help tax": () => showSection("tax"),
-    "help bills": () => showSection("bills"),
-    "help expenses": () => showSection("expenses"),
-    "help reminders": () => showSection("reminders")
-};
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML += `<div class="user-msg">${input}</div>`;
 
-function sendMessage() {
-    const userMsg = chatInput.value.trim().toLowerCase();
-    if (!userMsg) return;
+    // Determine if input is a new task
+    const aiResponse = await getAIResponse(
+        "Parse this into a task JSON with fields: title, category (Bills/Expenses/Reminders), dueDate, recurring. If not a task, answer as admin AI: " + input
+    );
 
-    const pUser = document.createElement("p");
-    pUser.innerHTML = `<strong>You:</strong> ${chatInput.value}`;
-    chatBox.appendChild(pUser);
+    try {
+        const task = JSON.parse(aiResponse);
 
-    let response = aiResponses[userMsg] || "I'm not sure about that, but I can help with taxes, bills, expenses, and reminders.";
-    if (typeof response === "function") response();
-    else {
-        const pBot = document.createElement("p");
-        pBot.innerHTML = `<strong>AI:</strong> ${response}`;
-        chatBox.appendChild(pBot);
+        if (task.category === "Bills") bills.push(task);
+        else if (task.category === "Expenses") expenses.push(task);
+        else reminders.push(task);
+
+        displayBills();
+        displayExpenses();
+        displayReminders();
+
+        chatBox.innerHTML += `<div class="ai-msg">Task added: ${task.title}</div>`;
+    } catch {
+        // If AI response is not JSON, treat as normal chat answer
+        chatBox.innerHTML += `<div class="ai-msg">${aiResponse}</div>`;
     }
 
-    chatInput.value = "";
+    document.getElementById('chat-input').value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-document.getElementById("chat-send").addEventListener("click", sendMessage);
-chatInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
 });
+
+// ---------------------
+// OPTIONAL: Weekly Summary
+// ---------------------
+async function getWeeklySummary() {
+    const allTasks = [...bills, ...expenses, ...reminders];
+    const summary = await getAIResponse(
+        "Generate a concise weekly summary of these tasks: " + JSON.stringify(allTasks)
+    );
+    alert(summary);
+}
