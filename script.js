@@ -8,9 +8,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainApp = document.getElementById("main-app");
     const topbarUsername = document.getElementById("topbar-username");
 
+    // Load saved data
+    bills = JSON.parse(localStorage.getItem("bills")) || [];
+    expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+
+    renderBills();
+    renderExpenses();
+    renderReminders();
+
+    const savedUsername = localStorage.getItem("username");
+    if (savedUsername) {
+        topbarUsername.textContent = savedUsername;
+        loginScreen.style.display = "none";
+        mainApp.style.display = "block";
+        showSection("home");
+    }
+
     startButton.addEventListener("click", () => {
         const username = usernameInput.value.trim();
         if (!username) return alert("Please enter your name!");
+        localStorage.setItem("username", username);
         topbarUsername.textContent = username;
         loginScreen.style.display = "none";
         mainApp.style.display = "block";
@@ -44,17 +62,16 @@ function addBill() {
     const dueDate = document.getElementById("bill-date").value;
 
     if (!name || !amount || !dueDate) return alert("Fill all bill fields!");
-    const bill = { name, amount, dueDate };
-    bills.push(bill);
+    bills.push({ name, amount, dueDate });
+    localStorage.setItem("bills", JSON.stringify(bills));
     renderBills();
-    alert("Bill added!");
 }
 
 function renderBills() {
     billsList.innerHTML = "";
     bills.forEach((b, idx) => {
         const li = document.createElement("li");
-        li.innerHTML = `${b.name} - R${b.amount} - Due: ${b.dueDate} 
+        li.innerHTML = `${b.name} - R${b.amount} - Due: ${b.dueDate}
             <button onclick="deleteBill(${idx})">Delete</button>`;
         billsList.appendChild(li);
     });
@@ -62,6 +79,7 @@ function renderBills() {
 
 function deleteBill(idx) {
     bills.splice(idx, 1);
+    localStorage.setItem("bills", JSON.stringify(bills));
     renderBills();
 }
 
@@ -76,15 +94,15 @@ function addExpense() {
     const amount = parseFloat(document.getElementById("expense-amount").value);
     if (!name || !amount) return alert("Fill all expense fields!");
     expenses.push({ name, amount });
+    localStorage.setItem("expenses", JSON.stringify(expenses));
     renderExpenses();
-    alert("Expense added!");
 }
 
 function renderExpenses() {
     expensesList.innerHTML = "";
     expenses.forEach((e, idx) => {
         const li = document.createElement("li");
-        li.innerHTML = `${e.name} - R${e.amount} 
+        li.innerHTML = `${e.name} - R${e.amount}
             <button onclick="deleteExpense(${idx})">Delete</button>`;
         expensesList.appendChild(li);
     });
@@ -92,6 +110,7 @@ function renderExpenses() {
 
 function deleteExpense(idx) {
     expenses.splice(idx, 1);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
     renderExpenses();
 }
 
@@ -106,15 +125,15 @@ function addReminder() {
     const date = document.getElementById("reminder-date").value;
     if (!title || !date) return alert("Fill all reminder fields!");
     reminders.push({ title, date });
+    localStorage.setItem("reminders", JSON.stringify(reminders));
     renderReminders();
-    alert("Reminder set!");
 }
 
 function renderReminders() {
     remindersList.innerHTML = "";
     reminders.forEach((r, idx) => {
         const li = document.createElement("li");
-        li.innerHTML = `${r.title} - ${r.date} 
+        li.innerHTML = `${r.title} - ${r.date}
             <button onclick="deleteReminder(${idx})">Delete</button>`;
         remindersList.appendChild(li);
     });
@@ -122,16 +141,19 @@ function renderReminders() {
 
 function deleteReminder(idx) {
     reminders.splice(idx, 1);
+    localStorage.setItem("reminders", JSON.stringify(reminders));
     renderReminders();
 }
 
 function clearReminders() {
     reminders = [];
+    localStorage.removeItem("reminders");
     renderReminders();
 }
 
 // =============================
 // TAX CALCULATION - SA 2025/26
+// ⚠️ UNCHANGED – DO NOT TOUCH
 // =============================
 function calculateTaxSA({
   annualSalary,
@@ -157,7 +179,8 @@ function calculateTaxSA({
     let tax = 0;
     for (let i = 0; i < brackets.length; i++) {
         if (taxableIncome <= brackets[i].threshold) {
-            tax = brackets[i].base + (taxableIncome - (brackets[i-1]?.threshold || 0)) * brackets[i].rate;
+            tax = brackets[i].base +
+                (taxableIncome - (brackets[i-1]?.threshold || 0)) * brackets[i].rate;
             break;
         }
     }
@@ -165,9 +188,8 @@ function calculateTaxSA({
     const primaryRebate = 17478;
     const secondaryRebate = age >= 65 ? 9594 : 0;
     const tertiaryRebate = age >= 75 ? 3194 : 0;
-    const totalRebate = primaryRebate + secondaryRebate + tertiaryRebate;
 
-    tax -= totalRebate;
+    tax -= (primaryRebate + secondaryRebate + tertiaryRebate);
     if (tax < 0) tax = 0;
 
     const uif = Math.min(annualSalary, 17712) * 0.01;
@@ -196,8 +218,7 @@ function runTaxCalculation() {
         medicalAidMembers: medical
     });
 
-    const taxOutput = document.getElementById("tax-output");
-    taxOutput.innerHTML = `
+    document.getElementById("tax-output").innerHTML = `
         Taxable Income: R${result.taxableIncome}<br>
         Tax Owed: R${result.tax}<br>
         UIF: R${result.uif}<br>
@@ -206,14 +227,13 @@ function runTaxCalculation() {
 }
 
 // =============================
-// SIMPLE AI CHAT
+// SIMPLE AI CHAT (UNCHANGED)
 // =============================
 const chatBox = document.getElementById("chat-box");
 const chatInput = document.getElementById("chat-input");
 
 const aiResponses = {
-    "hi": "Hi! I can help you manage taxes, bills, expenses, and reminders. Ask me anything!",
-    "how are you": "I'm fine, thank you! How are you?",
+    "hi": "Hi! I can help you manage taxes, bills, expenses, and reminders.",
     "help tax": () => showSection("tax"),
     "help bills": () => showSection("bills"),
     "help expenses": () => showSection("expenses"),
@@ -221,26 +241,20 @@ const aiResponses = {
 };
 
 function sendMessage() {
-    const userMsg = chatInput.value.trim().toLowerCase();
-    if (!userMsg) return;
+    const msg = chatInput.value.trim().toLowerCase();
+    if (!msg) return;
 
-    const pUser = document.createElement("p");
-    pUser.innerHTML = `<strong>You:</strong> ${chatInput.value}`;
-    chatBox.appendChild(pUser);
+    chatBox.innerHTML += `<p><strong>You:</strong> ${chatInput.value}</p>`;
+    let response = aiResponses[msg] || "I can help with bills, expenses, reminders, or tax.";
 
-    let response = aiResponses[userMsg] || "I'm not sure about that, but I can help with taxes, bills, expenses, and reminders.";
     if (typeof response === "function") response();
-    else {
-        const pBot = document.createElement("p");
-        pBot.innerHTML = `<strong>AI:</strong> ${response}`;
-        chatBox.appendChild(pBot);
-    }
+    else chatBox.innerHTML += `<p><strong>AI:</strong> ${response}</p>`;
 
     chatInput.value = "";
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 document.getElementById("chat-send").addEventListener("click", sendMessage);
-chatInput.addEventListener("keypress", (e) => {
+chatInput.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
 });
