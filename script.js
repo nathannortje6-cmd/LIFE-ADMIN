@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bills = JSON.parse(localStorage.getItem("bills")) || [];
     expenses = JSON.parse(localStorage.getItem("expenses")) || [];
     reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    lastTaxResult = JSON.parse(localStorage.getItem("lastTaxResult")) || null;
 
     renderBills();
     renderExpenses();
@@ -155,6 +156,8 @@ function clearReminders() {
 // TAX CALCULATION - SA 2025/26
 // ⚠️ UNCHANGED – DO NOT TOUCH
 // =============================
+let lastTaxResult = null; // keep last calculation
+
 function calculateTaxSA({
   annualSalary,
   age = 30,
@@ -218,6 +221,9 @@ function runTaxCalculation() {
         medicalAidMembers: medical
     });
 
+    lastTaxResult = result;
+    localStorage.setItem("lastTaxResult", JSON.stringify(lastTaxResult));
+
     document.getElementById("tax-output").innerHTML = `
         Taxable Income: R${result.taxableIncome}<br>
         Tax Owed: R${result.tax}<br>
@@ -227,7 +233,7 @@ function runTaxCalculation() {
 }
 
 // =============================
-// SIMPLE AI CHAT (UNCHANGED)
+// SIMPLE AI CHAT + FINANCIAL SUMMARY
 // =============================
 const chatBox = document.getElementById("chat-box");
 const chatInput = document.getElementById("chat-input");
@@ -237,7 +243,16 @@ const aiResponses = {
     "help tax": () => showSection("tax"),
     "help bills": () => showSection("bills"),
     "help expenses": () => showSection("expenses"),
-    "help reminders": () => showSection("reminders")
+    "help reminders": () => showSection("reminders"),
+    "summary": () => {
+        let totalBills = bills.reduce((sum, b) => sum + b.amount, 0);
+        let totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+        let netLeft = lastTaxResult ? lastTaxResult.netSalary - totalBills - totalExpenses : "Run tax calculation first!";
+        chatBox.innerHTML += `<p><strong>AI Summary:</strong><br>
+            Total Bills: R${totalBills}<br>
+            Total Expenses: R${totalExpenses}<br>
+            Money Left After Tax: ${typeof netLeft === "number" ? "R"+netLeft : netLeft}</p>`;
+    }
 };
 
 function sendMessage() {
@@ -245,7 +260,7 @@ function sendMessage() {
     if (!msg) return;
 
     chatBox.innerHTML += `<p><strong>You:</strong> ${chatInput.value}</p>`;
-    let response = aiResponses[msg] || "I can help with bills, expenses, reminders, or tax.";
+    let response = aiResponses[msg] || "I can help with bills, expenses, reminders, tax, or type 'summary' for a financial overview.";
 
     if (typeof response === "function") response();
     else chatBox.innerHTML += `<p><strong>AI:</strong> ${response}</p>`;
