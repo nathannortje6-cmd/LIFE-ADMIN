@@ -5,20 +5,35 @@
     <title>Life Admin</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Simple CSS for layout and chat */
+        /* ----------------------------
+           Base layout & chat styles
+        ---------------------------- */
         body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
-        .topbar { background:#4CAF50; color:white; padding:10px; text-align:center; }
+        .topbar { background:#4CAF50; color:white; padding:10px; text-align:center; font-weight:bold; }
         .section { padding:20px; display:none; }
         .navbar { position:fixed; bottom:0; width:100%; display:flex; background:#333; color:white; }
         .nav-item { flex:1; padding:10px; text-align:center; cursor:pointer; }
         .nav-item:hover { background:#555; }
-        .login-card { background:white; padding:30px; margin:50px auto; width:300px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.2); }
-        input, button { margin:5px 0; padding:10px; width:100%; box-sizing:border-box; }
-        #chat-box { background:#e0e0e0; height:250px; overflow-y:auto; padding:10px; margin-bottom:10px; border-radius:5px; }
+        .login-card { background:white; padding:30px; margin:50px auto; width:300px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.2); position:relative; z-index:1; }
+        input, button { margin:5px 0; padding:10px; width:100%; box-sizing:border-box; border-radius:5px; border:1px solid #ccc; }
+        button { background:#4CAF50; color:white; border:none; cursor:pointer; }
+        button:hover { background:#45a049; }
+        #chat-box { background:#e0e0e0; height:250px; overflow-y:auto; padding:10px; margin-bottom:10px; border-radius:5px; display:flex; flex-direction:column; }
         .user-msg { background:#4CAF50; color:white; padding:5px 10px; margin:5px 0; border-radius:5px; align-self:flex-end; display:inline-block; }
         .ai-msg { background:#fff; color:black; padding:5px 10px; margin:5px 0; border-radius:5px; display:inline-block; }
         .profile-container { text-align:center; }
         .profile-avatar { width:80px; height:80px; background:#ccc; border-radius:50%; margin:0 auto 10px; }
+        /* Floating glow effects for login screen */
+        .floating-glow { position:absolute; border-radius:50%; opacity:0.3; animation: float 6s infinite; z-index:0; }
+        .glow-1 { width:100px; height:100px; background:cyan; top:10%; left:20%; }
+        .glow-2 { width:150px; height:150px; background:magenta; top:40%; left:70%; }
+        .glow-3 { width:120px; height:120px; background:yellow; top:70%; left:30%; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
     </style>
 </head>
 <body>
@@ -27,6 +42,10 @@
 <!-- LOGIN SCREEN -->
 <!-- ============================= -->
 <div id="login-screen">
+    <div class="floating-glow glow-1"></div>
+    <div class="floating-glow glow-2"></div>
+    <div class="floating-glow glow-3"></div>
+
     <div class="login-card">
         <h1>Welcome to Life Admin</h1>
         <input type="text" id="username" placeholder="Enter your name">
@@ -47,7 +66,8 @@
     <!-- SECTIONS -->
     <div id="home" class="section">
         <h2>Home</h2>
-        <p>Welcome! Use the bottom navigation to explore.</p>
+        <p>Welcome! Use the bottom navigation to explore all sections.</p>
+        <p>You can also type tasks naturally in AI Chat like: <i>"Pay water bill on 10th Feb monthly"</i></p>
     </div>
 
     <div id="bills" class="section">
