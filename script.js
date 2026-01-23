@@ -29,7 +29,7 @@ function showSection(sectionId) {
 }
 
 /* ============================= */
-/* BILLS, EXPENSES, REMINDERS   */
+/* BILLS                         */
 /* ============================= */
 function addBill() {
     const name = document.getElementById('bill-name').value;
@@ -59,6 +59,9 @@ function removeBill(index) {
     renderBills();
 }
 
+/* ============================= */
+/* EXPENSES                      */
+/* ============================= */
 function addExpense() {
     const name = document.getElementById('expense-name').value;
     const amount = document.getElementById('expense-amount').value;
@@ -85,6 +88,9 @@ function removeExpense(index) {
     renderExpenses();
 }
 
+/* ============================= */
+/* REMINDERS                     */
+/* ============================= */
 function addReminder() {
     const title = document.getElementById('reminder-title').value;
     const datetime = document.getElementById('reminder-date').value;
@@ -112,7 +118,7 @@ function clearReminders() {
 }
 
 /* ============================= */
-/* TAX CALCULATOR (FIXED OLD STYLE) */
+/* TAX CALCULATOR (OLD WORKING)  */
 /* ============================= */
 function runTaxCalculation() {
     const salary = Number(document.getElementById('tax-salary').value);
@@ -121,72 +127,50 @@ function runTaxCalculation() {
     const retirement = Number(document.getElementById('tax-retirement').value);
     const medicalMembers = Number(document.getElementById('tax-medical').value);
 
-    if (!salary || salary <= 0) {
-        return alert('Please enter a valid salary.');
-    }
+    if (!salary || salary <= 0) return alert('Please enter a valid salary.');
 
     let tax = 0;
 
-    // SA 2025/26 brackets exactly as in old working version
-    if (salary <= 237100) {
-        tax = salary * 0.18;
-    } else if (salary <= 370500) {
-        tax = 42678 + (salary - 237100) * 0.26;
-    } else if (salary <= 512800) {
-        tax = 77362 + (salary - 370500) * 0.31;
-    } else if (salary <= 673000) {
-        tax = 121910 + (salary - 512800) * 0.36;
-    } else if (salary <= 857900) {
-        tax = 179532 + (salary - 673000) * 0.39;
-    } else if (salary <= 1817000) {
-        tax = 251258 + (salary - 857900) * 0.41;
-    } else {
-        tax = 644489 + (salary - 1817000) * 0.45;
-    }
+    // SA 2025/26 tax brackets
+    if (salary <= 237100) tax = salary * 0.18;
+    else if (salary <= 370500) tax = 42678 + (salary - 237100) * 0.26;
+    else if (salary <= 512800) tax = 77362 + (salary - 370500) * 0.31;
+    else if (salary <= 673000) tax = 121910 + (salary - 512800) * 0.36;
+    else if (salary <= 857900) tax = 179532 + (salary - 673000) * 0.39;
+    else if (salary <= 1817000) tax = 251258 + (salary - 857900) * 0.41;
+    else tax = 644489 + (salary - 1817000) * 0.45;
 
-    // Fixed deductions exactly like old version
+    // Deductions
     let deduction = 0;
 
-    // Pension contribution deduction (max 27.5% of salary)
-    if (pension) {
-        const pensionDeductible = Math.min(pension, salary * 0.275);
-        deduction += pensionDeductible;
-    }
+    // Pension & retirement max 27.5% of salary
+    if (pension) deduction += Math.min(pension, salary * 0.275);
+    if (retirement) deduction += Math.min(retirement, salary * 0.275);
 
-    // Retirement annuity deduction (max 27.5% of salary)
-    if (retirement) {
-        const retirementDeductible = Math.min(retirement, salary * 0.275);
-        deduction += retirementDeductible;
-    }
+    // Medical credit: R364 per member
+    if (medicalMembers && medicalMembers > 0) deduction += medicalMembers * 364;
 
-    // Medical aid tax credit: R364 per member for 2025/26
-    if (medicalMembers && medicalMembers > 0) {
-        deduction += medicalMembers * 364;
-    }
-
-    // Apply deduction
     tax -= deduction;
-
     if (tax < 0) tax = 0;
 
     document.getElementById('tax-output').innerText = `Estimated Tax: R${tax.toFixed(2)}`;
 }
-
 
 /* ============================= */
 /* AI CHAT FUNCTIONALITY         */
 /* ============================= */
 const chatBox = document.getElementById('chat-box');
 const chatInput = document.getElementById('chat-input');
+
 document.getElementById('chat-send').addEventListener('click', handleChat);
-chatInput.addEventListener('keypress', e => { if(e.key==='Enter') handleChat(); });
+chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleChat(); });
 
 function handleChat() {
     const msg = chatInput.value.trim();
     if (!msg) return;
     addChatMessage(msg, 'user');
     chatInput.value = '';
-    setTimeout(() => processAI(msg), 500); // simulate AI delay
+    setTimeout(() => processAI(msg), 500);
 }
 
 function addChatMessage(text, type) {
@@ -209,7 +193,7 @@ function processAI(msg) {
         const name = nameMatch ? nameMatch[1] : "Unnamed Bill";
         const amount = amountMatch ? amountMatch[0] : 0;
         const date = dateMatch ? dateMatch[0] : new Date().toISOString().split('T')[0];
-        bills.push({ name, amount, date, ai: true });
+        bills.push({ name, amount, date });
         renderBills();
         response = `Bill added: ${name} - R${amount} - ${date}`;
     }
@@ -219,7 +203,7 @@ function processAI(msg) {
         const amountMatch = msg.match(/\d+/);
         const name = nameMatch ? nameMatch[1] : "Unnamed Expense";
         const amount = amountMatch ? amountMatch[0] : 0;
-        expenses.push({ name, amount, ai: true });
+        expenses.push({ name, amount });
         renderExpenses();
         response = `Expense added: ${name} - R${amount}`;
     }
@@ -229,7 +213,7 @@ function processAI(msg) {
         const dateMatch = msg.match(/\d{4}-\d{2}-\d{2}/);
         const title = titleMatch ? titleMatch[1] : "Untitled Reminder";
         const datetime = dateMatch ? dateMatch[0] : new Date().toISOString().slice(0,16);
-        reminders.push({ title, datetime, ai: true });
+        reminders.push({ title, datetime });
         renderReminders();
         response = `Reminder added: ${title} - ${datetime}`;
     }
